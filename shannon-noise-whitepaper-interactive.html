@@ -1,0 +1,1172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Communication in the Presence of Noise — An Interactive Reading of Shannon (1949)</title>
+<style>
+  :root{
+    --paper:#F6F5EF;
+    --panel:#FFFFFF;
+    --ink:#1C2733;
+    --muted:#5A6772;
+    --line:#DDE0D6;
+    --grid:rgba(28,39,51,.045);
+    --sig:#CC6B1F;         /* warm signal accent — interactive only */
+    --sig-ink:#8C4410;
+    --sig-soft:#FBEEDD;
+    --wave:#1C6E8C;        /* cool structural / ideal */
+    --wave-ink:#124F66;
+    --wave-soft:#E1EEF3;
+    --noise:#C43D2E;       /* noise / error / broken */
+    --noise-soft:#FBEAE7;
+    --code-bg:#141F27;
+    --code-ink:#D8E1E8;
+    --code-dim:#7A8B96;
+    --serif:Charter,'Iowan Old Style','Palatino Linotype',Georgia,serif;
+    --mono:ui-monospace,'Cascadia Code',Consolas,'SF Mono',Menlo,monospace;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--serif);font-size:17px;line-height:1.65;}
+  ::selection{background:var(--sig-soft)}
+  a{color:var(--wave)}
+  code{font-family:var(--mono);font-size:.85em;background:#ECEEE6;padding:1px 5px;border-radius:4px}
+  .mono{font-family:var(--mono)}
+  sub,sup{line-height:0}
+
+  /* ---------- masthead ---------- */
+  header.hero{
+    border-bottom:1px solid var(--line);padding:64px 24px 40px;text-align:center;
+    background:
+      repeating-linear-gradient(0deg,transparent,transparent 23px,var(--grid) 23px,var(--grid) 24px),
+      repeating-linear-gradient(90deg,transparent,transparent 23px,var(--grid) 23px,var(--grid) 24px),
+      var(--paper);
+  }
+  .hero .eyebrow{margin-bottom:18px}
+  .hero h1{font-size:clamp(29px,5vw,44px);line-height:1.15;margin:0 auto 14px;max-width:840px;font-weight:700;letter-spacing:-.01em;}
+  .hero .byline{color:var(--muted);font-size:15px;margin-bottom:26px}
+  .hero .byline b{color:var(--ink)}
+  .hashstrip{font-family:var(--mono);font-size:12px;letter-spacing:.14em;color:var(--sig-ink);word-break:break-all;max-width:700px;margin:0 auto;opacity:0;transition:opacity 1.6s ease;}
+  .hashstrip.show{opacity:.9}
+  .hashstrip small{display:block;letter-spacing:.1em;color:var(--muted);margin-bottom:6px}
+  .hashstrip .bits{color:var(--wave);font-size:11px;letter-spacing:.05em;display:block;margin-top:6px;opacity:.75}
+  .hero .abstract{max-width:660px;margin:30px auto 0;font-style:italic;color:var(--muted);border-top:1px solid var(--line);padding-top:22px;font-size:16px;}
+
+  .eyebrow{font-family:var(--mono);font-size:12px;text-transform:uppercase;letter-spacing:.16em;color:var(--muted);}
+  .eyebrow .no{color:var(--sig-ink);font-weight:700}
+
+  /* ---------- layout ---------- */
+  .wrap{display:grid;grid-template-columns:220px minmax(0,760px);gap:60px;justify-content:center;padding:56px 24px 0;}
+  nav.toc{position:sticky;top:24px;align-self:start;font-family:var(--mono);font-size:12.5px}
+  nav.toc .toc-title{letter-spacing:.16em;text-transform:uppercase;color:var(--muted);margin-bottom:14px}
+  nav.toc a{display:block;color:var(--muted);text-decoration:none;padding:4px 0 4px 12px;border-left:2px solid var(--line);line-height:1.4;}
+  nav.toc a:hover{color:var(--ink)}
+  nav.toc a.active{color:var(--sig-ink);border-left-color:var(--sig);font-weight:700}
+  nav.toc a.extra{color:var(--wave)}
+  main{min-width:0}
+
+  section.paper-sec{padding:8px 0 40px;border-bottom:1px solid var(--line);scroll-margin-top:16px}
+  section.paper-sec h2{font-size:26px;margin:10px 0 4px;letter-spacing:-.01em}
+  .quote{font-style:italic;color:var(--muted);font-size:15.5px;margin:14px 0 18px;padding-left:16px;border-left:3px solid var(--sig);}
+  .keyidea{background:var(--wave-soft);border:1px solid #C6DDE4;border-radius:8px;padding:12px 16px;margin:20px 0;font-size:16px;}
+  .keyidea b{color:var(--wave-ink)}
+  .theorem{background:#fff;border:1px solid var(--line);border-left:4px solid var(--ink);border-radius:6px;padding:12px 16px;margin:20px 0;font-size:15.5px}
+  .theorem .tname{font-family:var(--mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--sig-ink);font-weight:700;display:block;margin-bottom:6px}
+  .formula{font-family:var(--mono);text-align:center;font-size:18px;color:var(--ink);background:#fff;border:1px dashed var(--line);border-radius:6px;padding:12px;margin:16px 0}
+
+  /* ---------- demo panels ---------- */
+  .demo{
+    background:
+      repeating-linear-gradient(0deg,transparent,transparent 23px,var(--grid) 23px,var(--grid) 24px),
+      repeating-linear-gradient(90deg,transparent,transparent 23px,var(--grid) 23px,var(--grid) 24px),
+      var(--panel);
+    border:1px solid var(--line);border-radius:10px;padding:20px;margin:26px 0;}
+  .demo-tag{display:inline-block;font-family:var(--mono);font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.14em;color:#fff;background:var(--sig);padding:3px 9px;border-radius:20px;margin-bottom:12px;}
+  .demo-tag.fig{background:var(--wave)}
+  .demo h4{margin:0 0 6px;font-size:17px}
+  .demo .hint{color:var(--muted);font-size:14px;margin:4px 0 14px}
+  .demo svg{display:block;max-width:100%;height:auto}
+  .demo figcaption{font-size:13.5px;color:var(--muted);font-family:var(--mono);margin-top:10px;line-height:1.6}
+
+  button{font-family:var(--mono);font-size:13px;font-weight:700;cursor:pointer;border:1px solid var(--ink);background:var(--ink);color:#fff;border-radius:6px;padding:7px 16px;}
+  button:hover{background:#324150}
+  button.secondary{background:transparent;color:var(--ink)}
+  button.secondary:hover{background:#eceee6}
+  button:disabled{opacity:.5;cursor:wait}
+  button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--sig);outline-offset:2px;}
+  input[type=text],select{font-family:var(--mono);font-size:13px;color:var(--ink);border:1px solid var(--line);border-radius:6px;padding:7px 10px;background:#fff;}
+  input[type=range]{accent-color:var(--sig)}
+  label.fld{font-family:var(--mono);font-size:11px;text-transform:uppercase;letter-spacing:.1em;color:var(--muted)}
+
+  /* ---------- control grids ---------- */
+  .ctl{display:flex;gap:26px;flex-wrap:wrap;margin-bottom:12px}
+  .ctl label{display:flex;flex-direction:column;gap:5px;font-family:var(--mono);font-size:12px;color:var(--muted)}
+  .ctl label span{color:var(--ink)}
+  .ctl output{font-weight:700;color:var(--sig-ink)}
+  .ctl input[type=range]{width:190px;max-width:60vw}
+  .stats{display:flex;gap:26px;flex-wrap:wrap;font-family:var(--mono);margin:10px 0}
+  .stats .st b{display:block;font-size:22px;font-weight:700}
+  .stats .st span{font-size:11px;text-transform:uppercase;letter-spacing:.1em;color:var(--muted)}
+  .verdict{font-family:var(--mono);font-size:13px;border-radius:6px;padding:8px 12px;margin-top:6px}
+  .verdict.ok{background:var(--wave-soft);color:var(--wave-ink)}
+  .verdict.bad{background:var(--noise-soft);color:var(--noise)}
+
+  /* ---------- Table I ---------- */
+  table.tbl{width:100%;border-collapse:collapse;font-size:14.5px;margin:6px 0}
+  table.tbl th,table.tbl td{border:1px solid var(--line);padding:7px 10px;text-align:left;vertical-align:top}
+  table.tbl th{background:#EFEFE8;font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+  table.tbl td:first-child{color:var(--ink)}
+  table.tbl td:last-child{font-family:var(--mono);font-size:12.5px;color:var(--wave-ink)}
+
+  /* ---------- coding table ---------- */
+  .codetbl{width:100%;border-collapse:collapse;font-family:var(--mono);font-size:13px;margin-top:12px}
+  .codetbl th,.codetbl td{border:1px solid var(--line);padding:6px 9px;text-align:center}
+  .codetbl th{background:#EFEFE8;font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+  .codetbl .cw{color:var(--sig-ink);font-weight:700;letter-spacing:.12em}
+
+  /* ---------- code panels ---------- */
+  .codepanel{border-radius:10px;overflow:hidden;margin:26px 0;border:1px solid #0c141b}
+  .codehead{display:flex;justify-content:space-between;align-items:center;background:#0C141B;color:var(--code-dim);font-family:var(--mono);font-size:12px;padding:8px 14px;letter-spacing:.06em;}
+  .codehead button{padding:4px 14px;font-size:12px;background:var(--sig);border-color:var(--sig);color:#1a1206}
+  .codehead button:hover{background:#e07d2c}
+  pre.code{margin:0;background:var(--code-bg);color:var(--code-ink);font-family:var(--mono);font-size:13px;line-height:1.6;padding:16px 18px;overflow-x:auto;tab-size:2;}
+  pre.code .c{color:var(--code-dim);font-style:italic}
+  pre.code .k{color:#E39B54}
+  .codeout{background:#0C141B;color:#9FE8C3;font-family:var(--mono);font-size:12.5px;padding:0 18px;max-height:0;overflow:hidden;transition:max-height .3s ease;white-space:pre-wrap;word-break:break-word;line-height:1.7;}
+  .codeout.open{max-height:360px;padding:12px 18px;border-top:1px solid #22303b;overflow-y:auto}
+
+  /* ---------- beyond ---------- */
+  #beyond{border-top:4px double var(--line);margin-top:48px;padding-top:36px;border-bottom:none}
+  .supp-tag{display:inline-block;font-family:var(--mono);font-size:10.5px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--wave);border:1px solid var(--wave);border-radius:20px;padding:3px 10px;margin-bottom:10px;}
+  .beyondgrid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:22px}
+  .bcard{background:#fff;border:1px solid var(--line);border-radius:10px;padding:16px 18px}
+  .bcard h3{margin:0 0 8px;font-size:17px}
+  .bcard h3 .mono{font-size:11px;color:var(--wave);display:block;letter-spacing:.12em;text-transform:uppercase;margin-bottom:6px}
+  .bcard p{margin:0;font-size:15px;color:#3A4750}
+
+  footer{text-align:center;color:var(--muted);font-family:var(--mono);font-size:12px;padding:44px 24px 56px;line-height:2;}
+  footer a{color:var(--wave)}
+
+  @media (max-width:900px){
+    .wrap{grid-template-columns:minmax(0,1fr);gap:0;padding-top:32px}
+    nav.toc{position:static;display:flex;flex-wrap:wrap;gap:4px 14px;border-bottom:1px solid var(--line);padding-bottom:18px;margin-bottom:10px}
+    nav.toc .toc-title{width:100%}
+    nav.toc a{border-left:none;padding:2px 0}
+    .beyondgrid{grid-template-columns:1fr}
+  }
+  @media (prefers-reduced-motion:reduce){
+    html{scroll-behavior:auto}
+    .hashstrip,.codeout{transition:none}
+  }
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="eyebrow">An interactive reading · Proceedings of the I.R.E., January 1949</div>
+  <h1>Communication in the Presence of Noise</h1>
+  <div class="byline">by <b>Claude E. Shannon</b> · Bell Telephone Laboratories · presented 1948 — annotated &amp; explained, with live demos</div>
+  <div class="hashstrip" id="heroHash"><small>Shannon entropy of this paper's title — computed live in your browser</small><span></span><span class="bits"></span></div>
+  <p class="abstract">“A method is developed for representing any communication system geometrically. Messages and the
+  corresponding signals are points in two ‘function spaces,’ and the modulation process is a mapping of one space
+  into the other.” — the Summary, first sentence</p>
+</header>
+
+<div class="wrap">
+<nav class="toc" aria-label="Sections">
+  <div class="toc-title">Contents</div>
+  <a href="#s1">I · Introduction</a>
+  <a href="#s2">II · The Sampling Theorem</a>
+  <a href="#s3">III · Geometry of Signals</a>
+  <a href="#s4">IV · Geometry of Messages</a>
+  <a href="#s5">V · Transmitter &amp; Receiver</a>
+  <a href="#s6">VI · Mapping Considerations</a>
+  <a href="#s7">VII · Capacity in Noise</a>
+  <a href="#s8">VIII · Discussion</a>
+  <a href="#s9">IX · Gaussian Noise</a>
+  <a href="#s10">X · Arbitrary Noise</a>
+  <a href="#s11">XI · Discrete Sources</a>
+  <a href="#s12">XII · Continuous Sources</a>
+  <a href="#s13">↪ The Argument, Assembled</a>
+  <a href="#beyond" class="extra">＋ Beyond the Paper</a>
+</nav>
+
+<main>
+
+<!-- ============================================================ I -->
+<section class="paper-sec" id="s1">
+  <div class="eyebrow"><span class="no">§ 01</span> · What a message is</div>
+  <h2>Introduction</h2>
+  <p class="quote">“A general communications system … consists essentially of five elements: an information source,
+  the transmitter, the channel, the receiver, and the destination.”</p>
+  <p><b>What it's actually setting up:</b> before Shannon, engineers reasoned about telephones, telegraphs and radio
+  as separate crafts. Shannon draws one diagram that fits them all — source → transmitter → channel → receiver →
+  destination — and insists the only interesting question is <em>how much can get through the channel, reliably, per
+  second</em>. Everything downstream in the paper is an answer to that single question.</p>
+
+  <figure class="demo">
+    <span class="demo-tag fig">Figure 1</span>
+    <h4>The general communication system</h4>
+    <svg viewBox="0 0 720 150" role="img" aria-label="Source to transmitter to channel with noise to receiver to destination">
+      <defs>
+        <marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#5A6772"/></marker>
+      </defs>
+      <g font-family="ui-monospace,Consolas,monospace" font-size="11.5">
+        <g><rect x="8"  y="46" width="104" height="52" rx="7" fill="#fff" stroke="#1C2733" stroke-width="1.3"/><text x="60"  y="70" text-anchor="middle">INFORMATION</text><text x="60"  y="85" text-anchor="middle">SOURCE</text></g>
+        <g><rect x="158" y="46" width="104" height="52" rx="7" fill="#fff" stroke="#1C2733" stroke-width="1.3"/><text x="210" y="77" text-anchor="middle">TRANSMITTER</text></g>
+        <g><rect x="308" y="46" width="104" height="52" rx="7" fill="#FBEEDD" stroke="#CC6B1F" stroke-width="1.6"/><text x="360" y="77" text-anchor="middle" fill="#8C4410">CHANNEL</text></g>
+        <g><rect x="458" y="46" width="104" height="52" rx="7" fill="#fff" stroke="#1C2733" stroke-width="1.3"/><text x="510" y="77" text-anchor="middle">RECEIVER</text></g>
+        <g><rect x="608" y="46" width="104" height="52" rx="7" fill="#fff" stroke="#1C2733" stroke-width="1.3"/><text x="660" y="77" text-anchor="middle">DESTINATION</text></g>
+        <path d="M112,72 L156,72" stroke="#5A6772" stroke-width="1.5" marker-end="url(#arr)"/>
+        <path d="M262,72 L306,72" stroke="#5A6772" stroke-width="1.5" marker-end="url(#arr)"/>
+        <path d="M412,72 L456,72" stroke="#5A6772" stroke-width="1.5" marker-end="url(#arr)"/>
+        <path d="M562,72 L606,72" stroke="#5A6772" stroke-width="1.5" marker-end="url(#arr)"/>
+        <text x="210" y="38" text-anchor="middle" fill="#5A6772">message</text>
+        <text x="360" y="38" text-anchor="middle" fill="#8C4410">signal</text>
+        <text x="510" y="38" text-anchor="middle" fill="#5A6772">signal+noise</text>
+        <line x1="360" y1="118" x2="360" y2="100" stroke="#C43D2E" stroke-width="1.5" marker-end="url(#arr)"/>
+        <text x="360" y="134" text-anchor="middle" fill="#C43D2E" font-weight="700">NOISE</text>
+      </g>
+    </svg>
+    <figcaption>Distortion is a fixed, invertible warping of the signal; noise is the statistical, unpredictable part — and only noise sets a hard limit.</figcaption>
+  </figure>
+
+  <p>Two definitions in this section quietly rebuild the field. First, following <b>Nyquist</b> and <b>Hartley</b>,
+  information is measured <em>logarithmically</em>: a device with <code>n</code> positions stores log<sub>2</sub>&nbsp;<code>n</code>
+  units. Choose base 2 and the unit is the <b>bit</b> — the word makes one of its first appearances here. A bank of
+  <code>m</code> flip-flops stores exactly <code>m</code> bits.</p>
+  <p>Second, if a channel can reliably distinguish <code>M</code> different signals of duration <code>T</code>, it
+  carries log<sub>2</sub>&nbsp;<code>M</code> bits in time <code>T</code>, so its <b>capacity</b> is the limiting rate
+  <code>C = lim (log₂ M)/T</code>. The whole paper is the project of pinning down that <code>M</code> — first with no
+  noise (§II–VI), then with noise (§VII onward), where “reliably distinguish” becomes the crux.</p>
+  <div class="keyidea"><b>Key idea:</b> strip away telephony, telegraphy and radio and every one is the same machine —
+  a channel moving a bounded number of distinguishable signals per second. Count that number and you have measured
+  communication itself.</div>
+</section>
+
+<!-- ============================================================ II -->
+<section class="paper-sec" id="s2">
+  <div class="eyebrow"><span class="no">§ 02</span> · Continuous from dots</div>
+  <h2>The Sampling Theorem</h2>
+  <p class="quote">“If a function f(t) contains no frequencies higher than W cps, it is completely determined by giving
+  its ordinates at a series of points spaced 1/2W seconds apart.” — Theorem 1</p>
+  <p>This is the theorem that made digital audio, digital images and the entire sampled world possible. Its claim
+  sounds impossible: a signal is a continuous curve with infinitely many points, yet if it is <b>band-limited</b> —
+  no wiggles faster than <code>W</code> cycles per second — then a mere <b>2W samples per second</b> capture it
+  <em>exactly</em>. Nothing is lost; the continuous curve can be rebuilt perfectly from its dots.</p>
+  <p>The intuition Shannon gives: a signal with no frequency above <code>W</code> “cannot change to a substantially
+  new value in a time less than one-half cycle of the highest frequency” — so checking it twice per fastest cycle
+  misses nothing. The proof is a Fourier argument: the samples <em>are</em> the Fourier coefficients of the spectrum,
+  and the spectrum determines the signal. Reconstruction uses one pulse per sample, the now-famous
+  <b>sinc</b> function <code>sin(πx)/(πx)</code>, which is 1 at its own sample and exactly 0 at every other.</p>
+
+  <div class="demo" id="sampleDemo">
+    <span class="demo-tag">Interactive</span>
+    <h4>Sample a signal, then rebuild it</h4>
+    <p class="hint">A fixed band-limited waveform (three tones up to <code>W</code>). Set the bandwidth <code>W</code> and
+    the sampling rate <code>f<sub>s</sub></code>. The <span style="color:var(--ink)">grey curve</span> is the true signal,
+    the <span style="color:var(--sig-ink)">dots</span> are the samples, and the reconstruction is drawn on top by
+    summing a sinc pulse at every dot. Drop <code>f<sub>s</sub></code> below the <b>Nyquist rate 2W</b> and watch the
+    rebuild peel away from the truth — that is <b>aliasing</b>.</p>
+    <div class="ctl">
+      <label><span>bandwidth W = <output id="smpWv">5</output> cps</span>
+        <input type="range" id="smpW" min="2" max="8" value="5" step="1"></label>
+      <label><span>sampling rate f<sub>s</sub> = <output id="smpFsv">12</output> /s</span>
+        <input type="range" id="smpFs" min="4" max="28" value="12" step="1"></label>
+    </div>
+    <svg id="smpSvg" viewBox="0 0 700 240" role="img" aria-label="Signal, its samples, and the sinc reconstruction"></svg>
+    <div class="verdict" id="smpVerdict"></div>
+    <figcaption>Nyquist rate = 2W. At or above it, reconstruction is exact; below it, distinct signals collapse onto
+    the same samples and can never be told apart.</figcaption>
+  </div>
+
+  <p>Shannon also notes the count is symmetric in time and band: a signal limited to bandwidth <code>W</code> and
+  duration <code>T</code> is fixed by <b>2TW numbers</b>. Those numbers need not be evenly spaced samples — any 2TW
+  independent measurements will do. That “2TW independent numbers” becomes the hinge of the entire geometric picture
+  that follows.</p>
+
+  <div class="codepanel">
+    <div class="codehead"><span>code · reconstruct a signal from its samples</span><button class="runbtn" data-code="code1" data-out="out1">▶ Run</button></div>
+    <pre class="code" id="code1"><span class="c">// Whittaker–Shannon interpolation (the paper's Eq. 7):</span>
+<span class="c">// f(t) = Σ  x[n] · sinc(fs·t − n),   sinc(x) = sin(πx)/(πx)</span>
+<span class="k">const</span> sinc = x =&gt; x === 0 ? 1 : Math.sin(Math.PI*x)/(Math.PI*x);
+
+<span class="c">// A band-limited test signal: one tone at 3 cps (so W = 3).</span>
+<span class="k">const</span> f = t =&gt; Math.sin(2*Math.PI*3*t);
+
+<span class="c">// Sample it ABOVE Nyquist (fs = 8 &gt; 2W = 6) over a 2-second window.</span>
+<span class="k">const</span> fs = 8, N = fs*2;
+<span class="k">const</span> x = Array.from({length:N}, (_,n) =&gt; f(n/fs));
+
+<span class="k">const</span> rebuild = t =&gt; x.reduce((s,xn,n) =&gt; s + xn*sinc(fs*t - n), 0);
+
+<span class="c">// The samples pin the curve EXACTLY at every sample instant…</span>
+print('at a sample (t=5/fs):  true ' + f(5/fs).toFixed(4) + '   rebuilt ' + rebuild(5/fs).toFixed(4));
+<span class="c">// …and reconstruct the values BETWEEN samples too:</span>
+print('between samples t=0.37: true ' + f(0.37).toFixed(4) + '   rebuilt ' + rebuild(0.37).toFixed(4));
+print('the dots were enough to bring back the whole curve.');</pre>
+    <div class="codeout" id="out1"></div>
+  </div>
+</section>
+
+<!-- ============================================================ III -->
+<section class="paper-sec" id="s3">
+  <div class="eyebrow"><span class="no">§ 03</span> · A signal is a point</div>
+  <h2>Geometrical Representation of the Signals</h2>
+  <p class="quote">“The 2TW evenly spaced samples of a signal can be thought of as co-ordinates of a point in a space
+  of 2TW dimensions.”</p>
+  <p>Here is the paper's master stroke. Three numbers are a point in 3-D space; likewise the <b>2TW numbers</b> that
+  specify a signal are the coordinates of a single point in a <b>2TW-dimensional space</b>. A one-hour, 5-MHz television
+  signal becomes one point in a space of 3.6 × 10<sup>10</sup> dimensions. You cannot picture it — but you can reason
+  about it with plain geometry, and that reasoning is exact.</p>
+  <p>The geometry pays off immediately because <b>distance means something physical</b>. The squared distance from the
+  origin to a signal's point equals 2W times the signal's energy — i.e. <code>d² = 2WTP</code>, where <code>P</code> is
+  average power. So <b>all signals of power ≤ P live inside a sphere of radius √(2WTP)</b>. And noise, which nudges each
+  coordinate a little, becomes a small blur around each point. This one dictionary — power↔radius, noise↔blur,
+  filter↔projection — turns the capacity question into a packing question.</p>
+
+  <div class="demo" id="sphereDemo">
+    <span class="demo-tag">Interactive</span>
+    <h4>From samples to a point in a sphere</h4>
+    <p class="hint">Change the duration, bandwidth and power. The signal lives as one point inside a sphere whose radius
+    is set by its energy — the fact that powers the capacity proof in §VII.</p>
+    <div class="ctl">
+      <label><span>duration T = <output id="spT">2</output> s</span><input type="range" id="spTr" min="1" max="10" value="2"></label>
+      <label><span>bandwidth W = <output id="spW">4</output> cps</span><input type="range" id="spWr" min="1" max="20" value="4"></label>
+      <label><span>power P = <output id="spP">6</output></span><input type="range" id="spPr" min="1" max="20" value="6"></label>
+    </div>
+    <div class="stats">
+      <div class="st"><b id="spDim">16</b><span>dimensions (2TW)</span></div>
+      <div class="st"><b id="spRad">—</b><span>sphere radius √(2WTP)</span></div>
+      <div class="st"><b id="spEng">—</b><span>signal energy TP</span></div>
+    </div>
+    <figcaption>Every extra second or hertz adds two dimensions; the "complex entity in a simple space" (a waveform)
+    becomes a "simple entity in a complex space" (a point).</figcaption>
+  </div>
+</section>
+
+<!-- ============================================================ IV -->
+<section class="paper-sec" id="s4">
+  <div class="eyebrow"><span class="no">§ 04</span> · Messages worth sending</div>
+  <h2>Geometrical Representation of the Messages</h2>
+  <p class="quote">“All the points which are equivalent for the destination can be grouped together and treated as one
+  point.”</p>
+  <p>Signals live in a space; so do <b>messages</b>, in their own space of <code>2T₁W₁</code> dimensions. But the
+  message space is usually <em>smaller than it looks</em>, for two reasons Shannon draws out. First, the destination
+  can't tell some messages apart — the ear is nearly deaf to phase, so many distinct waveforms sound identical. Group
+  every indistinguishable message into one point (an “equivalence class”) and the effective dimension drops.</p>
+  <p>Second, the source may never produce most messages: speech must come from a human vocal tract; successive
+  television frames are nearly identical. Improbable messages can be neglected. What's left is the <b>effective
+  dimensionality D</b> — usually far below <code>2T₁W₁</code>. This is the seed of data compression: you only need to
+  transmit the dimensions that actually vary and that the receiver can actually perceive.</p>
+
+  <figure class="demo">
+    <span class="demo-tag fig">Figure 2</span>
+    <h4>Reducing dimensionality through equivalence</h4>
+    <svg viewBox="0 0 700 210" role="img" aria-label="A square of points collapsing to a single radius when points on a circle are equivalent">
+      <g font-family="ui-monospace,Consolas,monospace" font-size="12">
+        <rect x="60" y="30" width="150" height="150" fill="#fff" stroke="#1C2733" stroke-width="1.3"/>
+        <circle cx="135" cy="105" r="58" fill="none" stroke="#CC6B1F" stroke-width="1.6" stroke-dasharray="4 4"/>
+        <circle cx="135" cy="105" r="3" fill="#1C2733"/>
+        <text x="135" y="200" text-anchor="middle" fill="#5A6772">2-D message space</text>
+        <text x="196" y="70" fill="#8C4410">circle = "same"</text>
+        <path d="M250,105 L330,105" stroke="#5A6772" stroke-width="1.5" marker-end="url(#arr)"/>
+        <text x="290" y="95" text-anchor="middle" fill="#5A6772">collapse</text>
+        <line x1="380" y1="105" x2="620" y2="105" stroke="#1C2733" stroke-width="1.3"/>
+        <circle cx="470" cy="105" r="4" fill="#CC6B1F"/>
+        <text x="470" y="135" text-anchor="middle" fill="#8C4410">one number: the radius</text>
+        <text x="500" y="175" text-anchor="middle" fill="#5A6772">1-D space (dimension D &lt; 2T₁W₁)</text>
+      </g>
+    </svg>
+    <figcaption>If the destination treats every point on a circle as the same message, a 2-D space becomes 1-D — the
+    vocoder exploits exactly this among speech sounds.</figcaption>
+  </figure>
+  <div class="keyidea"><b>Key idea:</b> the real size of a communication problem is not the raw waveform's dimensions
+  but <code>D</code>, the dimensions the source can vary <em>and</em> the destination can notice. Compression is the
+  art of finding D.</div>
+</section>
+
+<!-- ============================================================ V -->
+<section class="paper-sec" id="s5">
+  <div class="eyebrow"><span class="no">§ 05</span> · Modulation is a map</div>
+  <h2>Geometrical Representation of the Transmitter and Receiver</h2>
+  <p class="quote">“Every point in the message space must correspond to a point in the signal space, and no two messages
+  can correspond to the same signal.”</p>
+  <p>Now the transmitter and receiver get geometric jobs. The transmitter takes one point in the message space and
+  produces one point in the signal space — that is all modulation <em>is</em>, a <b>mapping</b> between two spaces.
+  The one unbreakable rule: no two messages may map to the same signal, or the receiver could never tell which was
+  sent. The receiver runs the reverse map; interestingly, it's <em>allowed</em> to send several signals back to one
+  message (AM discards carrier phase, PCM tolerates pulse distortion) — that slack is exactly what buys noise
+  immunity.</p>
+  <p>Shannon condenses the whole correspondence into one table. It is worth reading slowly: every communication concept
+  on the left has become a piece of geometry on the right.</p>
+  <table class="tbl">
+    <thead><tr><th>Communication system</th><th>Geometrical entity</th></tr></thead>
+    <tbody>
+      <tr><td>The set of possible signals</td><td>A space of 2TW dimensions</td></tr>
+      <tr><td>A particular signal</td><td>A point in the space</td></tr>
+      <tr><td>Distortion in the channel</td><td>A warping of the space</td></tr>
+      <tr><td>Noise in the channel</td><td>A region of uncertainty about each point</td></tr>
+      <tr><td>Average signal power P</td><td>(2TW)⁻¹ × squared distance from origin</td></tr>
+      <tr><td>Set of signals of power P</td><td>Points inside a sphere of radius √(2TWP)</td></tr>
+      <tr><td>The transmitter</td><td>A mapping of message space → signal space</td></tr>
+      <tr><td>The receiver</td><td>A mapping of signal space → message space</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- ============================================================ VI -->
+<section class="paper-sec" id="s6">
+  <div class="eyebrow"><span class="no">§ 06</span> · Trading band for noise</div>
+  <h2>Mapping Considerations</h2>
+  <p class="quote">“Any system which attempts to use the capacities of a wider band to the full extent possible will
+  suffer from a threshold effect when there is noise.”</p>
+  <p>With modulation reframed as a map, Shannon reads off consequences from geometry alone. <b>FM and bandwidth
+  expansion:</b> mapping the message line into a higher-dimensional signal space <em>stretches</em> it. The more the
+  line wanders back and forth through the extra dimensions, the longer it gets — and a longer line means noise (a fixed
+  small blur) is proportionally smaller, so the signal-to-noise ratio improves. That's why wideband FM sounds cleaner
+  than AM: it spends bandwidth to buy quiet.</p>
+  <p>But there is no free lunch — hence the <b>threshold effect</b>. Fold a line densely into a plane and, once noise
+  exceeds a critical size, the receiver can't tell which fold it's near, and the message jumps catastrophically. Going
+  the other way, <b>Cantor's mapping</b> shows a square's points can be interleaved onto a line (digit by digit), so in
+  principle bandwidth can be compressed arbitrarily <em>when there is no noise</em> — but the necessary discontinuity
+  reintroduces a threshold the moment noise returns. This is where the naïve “Hartley's Law” both holds and fails, and
+  it forces the question the rest of the paper answers: <b>with noise fixed, what is the real limit?</b></p>
+  <figure class="demo">
+    <span class="demo-tag fig">Figures 3 &amp; 4</span>
+    <h4>Folding a line to beat noise — up to a point</h4>
+    <svg viewBox="0 0 700 200" role="img" aria-label="A gently curved mapping versus a densely folded space-filling mapping">
+      <g font-family="ui-monospace,Consolas,monospace" font-size="11">
+        <rect x="40" y="30" width="150" height="150" fill="#fff" stroke="#1C2733" stroke-width="1.2"/>
+        <path d="M50,170 C90,60 140,60 180,40" fill="none" stroke="#1C6E8C" stroke-width="2"/>
+        <text x="115" y="196" text-anchor="middle" fill="#5A6772">gentle map — short line</text>
+        <rect x="290" y="30" width="150" height="150" fill="#fff" stroke="#1C2733" stroke-width="1.2"/>
+        <path d="M300,40 L430,40 L430,58 L300,58 L300,76 L430,76 L430,94 L300,94 L300,112 L430,112 L430,130 L300,130 L300,148 L430,148 L430,166 L300,166" fill="none" stroke="#CC6B1F" stroke-width="1.8"/>
+        <text x="365" y="196" text-anchor="middle" fill="#8C4410">folded map — long line, more S/N</text>
+        <g transform="translate(500,0)">
+          <text x="90" y="60" text-anchor="middle" fill="#C43D2E" font-weight="700">threshold</text>
+          <path d="M20,150 C60,150 70,90 90,90 C110,90 118,150 160,150" fill="none" stroke="#C43D2E" stroke-width="2"/>
+          <line x1="90" y1="90" x2="90" y2="150" stroke="#C43D2E" stroke-width="1" stroke-dasharray="3 3"/>
+          <text x="90" y="176" text-anchor="middle" fill="#5A6772">past critical noise:</text>
+          <text x="90" y="190" text-anchor="middle" fill="#5A6772">message jumps</text>
+        </g>
+      </g>
+    </svg>
+    <figcaption>More folding → longer line → better noise margin — until noise crosses the fold spacing and the whole
+    scheme fails abruptly. Every band-for-power trade lives on this knife-edge.</figcaption>
+  </figure>
+</section>
+
+<!-- ============================================================ VII -->
+<section class="paper-sec" id="s7">
+  <div class="eyebrow"><span class="no">§ 07</span> · The famous formula</div>
+  <h2>The Capacity of a Channel in the Presence of White Thermal Noise</h2>
+  <p class="quote">“By sufficiently complicated encoding systems it is possible to transmit binary digits at a rate
+  C = W log₂ (P+N)/N with as small a frequency of errors as desired.” — Theorem 2</p>
+  <p>This is the result the whole paper was built to reach — the <b>Shannon–Hartley theorem</b>, arguably the single
+  most consequential formula in communications. It says a channel of bandwidth <code>W</code> carrying signal power
+  <code>P</code> against white noise power <code>N</code> has an exact, finite capacity, and — the shocking part — you
+  can transmit <em>right up to it with arbitrarily few errors</em>. Below <code>C</code>: essentially perfect
+  communication is possible. Above <code>C</code>: impossible, no matter how clever the code.</p>
+  <div class="theorem"><span class="tname">Theorem 2 — Channel Capacity</span>
+    <span class="formula">C = W · log₂( (P + N) / N ) = W · log₂( 1 + P/N )</span>
+    Bits per second, with error frequency as small as desired — and not one bit per second more.</div>
+  <p><b>The geometric proof, in one breath:</b> in the 2TW-dimensional space, transmitted signals of power P land near
+  the surface of a sphere of radius √(2TWP); noise blurs each into a little ball of radius √(2TWN). Received signals
+  sit on a bigger sphere of radius √(2TW(P+N)). The number of noise-balls you can pack without overlap — the number of
+  <b>distinguishable</b> messages — is at most the volume ratio of those spheres, and taking log₂ and dividing by T
+  gives exactly <code>W log₂(P+N)/N</code>. Capacity <em>is</em> a sphere-packing count.</p>
+
+  <div class="demo" id="capDemo">
+    <span class="demo-tag">Interactive</span>
+    <h4>The capacity calculator &amp; the sphere-packing picture</h4>
+    <p class="hint">Set the bandwidth and the signal-to-noise ratio. Everything updates live from the paper's own
+    formula — the capacity, the number of distinguishable signals (the volume ratio), and the cross-section geometry
+    of Theorem 2's proof.</p>
+    <div class="ctl">
+      <label><span>bandwidth W = <output id="capWv">3000</output> Hz</span>
+        <input type="range" id="capW" min="500" max="10000" value="3000" step="500"></label>
+      <label><span>signal-to-noise P/N = <output id="capSnrv">20</output> dB</span>
+        <input type="range" id="capSnr" min="-10" max="40" value="20" step="1"></label>
+    </div>
+    <div class="stats">
+      <div class="st"><b id="capC">—</b><span>capacity C (bits/s)</span></div>
+      <div class="st"><b id="capCW">—</b><span>bits per Hz (C/W)</span></div>
+      <div class="st"><b id="capM">—</b><span>distinct signals in T=1s</span></div>
+    </div>
+    <svg id="capSvg" viewBox="0 0 700 210" role="img" aria-label="Cross-section of the signal sphere and noise balls, and the capacity-vs-SNR curve"></svg>
+    <figcaption>Left: Theorem 2's geometry — the received-signal sphere (radius √(2TW(P+N))) packed with
+    noise balls (radius √(2TWN)). Right: C/W = log₂(1+P/N) vs P/N in dB — this is the paper's Fig. 6 ideal curve, and
+    your dot is on it. A telephone line (3 kHz, ~30 dB) lands near 30 kbit/s — exactly the dial-up ceiling.</figcaption>
+  </div>
+
+  <div class="codepanel">
+    <div class="codehead"><span>code · capacity, and the exchange relation</span><button class="runbtn" data-code="code2" data-out="out2">▶ Run</button></div>
+    <pre class="code" id="code2"><span class="c">// Theorem 2, verbatim: capacity of a white-noise channel.</span>
+<span class="k">const</span> capacity = (W, P, N) =&gt; W * Math.log2((P + N) / N);   <span class="c">// bits per second</span>
+
+<span class="c">// A voice-grade phone line: 3 kHz, signal-to-noise ratio ~1000 (30 dB).</span>
+<span class="k">const</span> W = 3000, snr = 1000;
+print('phone-line capacity: ' + Math.round(capacity(W, snr, 1)) + ' bits/s');
+
+<span class="c">// Shannon's "exchange relation": T·W·log2(1+P/N) is the number of bits</span>
+<span class="c">// in time T. Halve the bandwidth and you must square the SNR to keep it.</span>
+print('at 3 kHz, SNR 1000 : ' + capacity(3000, 1000, 1).toFixed(0) + ' bits/s');
+print('at 1.5kHz, SNR 1e6 : ' + capacity(1500, 1e6, 1).toFixed(0) + ' bits/s');
+<span class="c">// Same throughput, different mix of band and power — you can trade them.</span>
+
+<span class="c">// The sanity check: at P = N (0 dB), every hertz carries exactly 1 bit/s.</span>
+print('C/W at 0 dB (P=N)  : ' + capacity(1, 1, 1).toFixed(3) + ' bit/Hz');</pre>
+    <div class="codeout" id="out2"></div>
+  </div>
+  <p>The crude pre-proof estimate (counting amplitude levels like PCM) gave a similar but weaker formula; Shannon shows
+  the true optimum beats it by about <b>8 dB</b>, because signals need only differ <em>statistically over time</em>,
+  not at every instant. The price of reaching <code>C</code> is long codewords and long delays — the transmitter must
+  wait for a whole block before it knows which signal to send. This block-coding insight is the ancestor of every
+  error-correcting code in use today.</p>
+</section>
+
+<!-- ============================================================ VIII -->
+<section class="paper-sec" id="s8">
+  <div class="eyebrow"><span class="no">§ 08</span> · Diminishing returns</div>
+  <h2>Discussion</h2>
+  <p class="quote">“We will call a system that transmits without errors at the rate C an ideal system. Such a system
+  cannot be achieved with any finite encoding process but can be approximated as closely as desired.”</p>
+  <p>Shannon lists what an <b>ideal system</b> looks like as you approach the limit, and the picture is almost
+  paradoxical: the transmitted signal starts to look like <b>random white noise</b> (the best codewords are scattered
+  randomly in the sphere), the required delays grow without bound, and the <b>threshold effect sharpens</b> — push
+  noise past the design point and errors explode. Real systems (PCM, PPM) sit about 8 dB short of ideal, and whether
+  closing that gap is worth the coding complexity is “a question of relative costs.” It took fifty years of coding
+  theory to actually close it.</p>
+  <p>He also settles the <b>bandwidth question</b>. If noise power grows with bandwidth (<code>N = N₀W</code>), then
+  widening the band helps a lot at first, then barely at all: capacity climbs toward a hard ceiling of
+  <b>1.443 × (capacity at W₀)</b>, where W₀ is the band at which noise power equals signal power. More spectrum is not
+  free capacity — it saturates.</p>
+
+  <div class="demo" id="bwDemo">
+    <span class="demo-tag">Interactive</span>
+    <h4>Why more bandwidth stops helping (Fig. 7)</h4>
+    <p class="hint">With fixed signal power and noise that grows with bandwidth, sweep the band. Capacity rises fast,
+    then flattens toward Shannon's asymptote of <b>log₂e ≈ 1.443</b>. This is the paper's Fig. 7, computed live.</p>
+    <div class="ctl">
+      <label><span>bandwidth W = <output id="bwWv">3.0</output> × W₀</span>
+        <input type="range" id="bwW" min="1" max="120" value="30" step="1"></label>
+    </div>
+    <div class="stats">
+      <div class="st"><b id="bwC">—</b><span>C / C(W₀)</span></div>
+      <div class="st"><b id="bwGap">—</b><span>% of the 1.443 ceiling</span></div>
+    </div>
+    <svg id="bwSvg" viewBox="0 0 700 200" role="img" aria-label="Capacity as a function of bandwidth, approaching an asymptote"></svg>
+    <figcaption>Doubling bandwidth beyond W₀ buys ever less. The asymptote 1.443 = log₂e is where infinite bandwidth
+    against proportional noise finally lands.</figcaption>
+  </div>
+</section>
+
+<!-- ============================================================ IX -->
+<section class="paper-sec" id="s9">
+  <div class="eyebrow"><span class="no">§ 09</span> · Pour power where it's quiet</div>
+  <h2>Arbitrary Gaussian Noise</h2>
+  <p class="quote">“For frequencies where the noise power is low, the signal power should be high, and vice versa, as we
+  would expect.”</p>
+  <p>Real channels aren't uniformly noisy — some frequencies are cleaner than others. If you have a fixed total power
+  budget <code>P</code> to spread across the band, where should you put it? Shannon splits the band into thin slices,
+  applies the white-noise result to each, and maximizes the total. The calculus-of-variations answer is beautiful and
+  intuitive: choose the signal spectrum <code>P(f)</code> so that <b>P(f) + N(f) is constant</b> across every frequency
+  you use.</p>
+  <p>Picture pouring water into an uneven basin whose floor is the noise spectrum: the water (signal power) settles to
+  one flat level, deep where the noise floor is low, shallow where it is high, and — if you don't have enough water —
+  <b>the highest noise peaks stick out dry and get no power at all</b>. This is literally called <b>water-filling</b>,
+  and it is still how every modern modem, DSL line and Wi-Fi radio allocates power across sub-carriers.</p>
+
+  <div class="demo" id="wfDemo">
+    <span class="demo-tag">Interactive</span>
+    <h4>Water-filling on a noisy spectrum (Fig. 8)</h4>
+    <p class="hint">The grey bars are the noise floor N(f) across the band. Add signal power with the slider — it fills
+    the low-noise valleys first to a flat waterline. Give it too little and the noisiest bands stay
+    <span style="color:var(--noise)">dry</span> and unused, exactly as the paper describes.</p>
+    <div class="ctl">
+      <label><span>total signal power P = <output id="wfPv">40</output></span>
+        <input type="range" id="wfP" min="2" max="120" value="40" step="2"></label>
+      <button class="secondary" id="wfShuffle">↻ new noise shape</button>
+    </div>
+    <svg id="wfSvg" viewBox="0 0 700 230" role="img" aria-label="Water-filling: signal power poured over a noise spectrum to a flat waterline"></svg>
+    <div class="stats">
+      <div class="st"><b id="wfLevel">—</b><span>water level P(f)+N(f)</span></div>
+      <div class="st"><b id="wfUsed">—</b><span>bands in use</span></div>
+      <div class="st"><b id="wfCap">—</b><span>relative capacity</span></div>
+    </div>
+    <figcaption>Signal (orange) sits atop noise (grey) to a flat top wherever it is used. Low P → tall noise peaks stay
+    dry. This is the optimal answer, and it is provably better than spreading power evenly.</figcaption>
+  </div>
+
+  <div class="codepanel">
+    <div class="codehead"><span>code · the water-filling allocation</span><button class="runbtn" data-code="code3" data-out="out3">▶ Run</button></div>
+    <pre class="code" id="code3"><span class="c">// Water-filling: choose P(f) ≥ 0 with Σ P(f) = P so that</span>
+<span class="c">// N(f) + P(f) = a constant "water level" wherever P(f) &gt; 0.</span>
+<span class="k">function</span> waterFill(noise, P) {
+  <span class="c">// Find the level L such that the poured power equals P.</span>
+  <span class="k">const</span> poured = L =&gt; noise.reduce((s,n) =&gt; s + Math.max(0, L - n), 0);
+  <span class="k">let</span> lo = Math.min(...noise), hi = lo + P + Math.max(...noise);
+  <span class="k">for</span> (<span class="k">let</span> i = 0; i &lt; 80; i++) {          <span class="c">// binary-search the waterline</span>
+    <span class="k">const</span> mid = (lo + hi) / 2;
+    poured(mid) &lt; P ? lo = mid : hi = mid;
+  }
+  <span class="k">const</span> L = (lo + hi) / 2;
+  <span class="k">return</span> { level: L, power: noise.map(n =&gt; Math.max(0, L - n)) };
+}
+
+<span class="k">const</span> noise = [1, 2, 8, 3, 1, 5];      <span class="c">// noise floor per sub-band</span>
+<span class="k">const</span> { level, power } = waterFill(noise, 12);
+print('water level: ' + level.toFixed(2));
+print('power/band : ' + power.map(p =&gt; p.toFixed(1)).join('  '));
+print('the noisiest band (8) gets ' + (power[2] &gt; 0 ? 'some' : 'ZERO') + ' power');
+print('check: total poured = ' + power.reduce((a,b)=&gt;a+b,0).toFixed(1) + '  (target 12)');</pre>
+    <div class="codeout" id="out3"></div>
+  </div>
+</section>
+
+<!-- ============================================================ X -->
+<section class="paper-sec" id="s10">
+  <div class="eyebrow"><span class="no">§ 10</span> · Noise's true size</div>
+  <h2>The Channel Capacity with an Arbitrary Type of Noise</h2>
+  <p class="quote">“For any noise, N₁ ≤ N. This is why white Gaussian noise is the worst among all possible noises.”</p>
+  <p>What if the noise isn't Gaussian — impulse noise, or noise through a nonlinear device? Shannon measures any noise
+  not by its raw power but by its <b>entropy power N₁</b>: the power of the white Gaussian noise that is equally
+  random. Two noises with the same entropy power blur each signal point into regions of equal volume, so they cost the
+  same capacity — the entropy power, not the raw power, is what actually eats into the channel.</p>
+  <div class="theorem"><span class="tname">Theorem 3 — Capacity bounds for any noise</span>
+    <span class="formula">W · log₂( (P + N₁) / N₁ )  ≤  C  ≤  W · log₂( (P + N) / N )</span>
+    where N is the noise power and N₁ ≤ N its entropy power; the bounds meet for white Gaussian noise.</div>
+  <p>Because <code>N₁ ≤ N</code> always, with equality only for white Gaussian noise, a profound corollary falls out:
+  <b>white Gaussian noise is the worst possible noise</b> for a given power. Any structure in the noise — any deviation
+  from pure randomness — is structure the clever coder can exploit to do <em>better</em> than the Theorem 2 rate.
+  Nature's most featureless noise is also its most damaging, which is why the Gaussian channel is the standard
+  pessimistic benchmark to this day.</p>
+</section>
+
+<!-- ============================================================ XI -->
+<section class="paper-sec" id="s11">
+  <div class="eyebrow"><span class="no">§ 11</span> · Bits per symbol</div>
+  <h2>Discrete Sources of Information</h2>
+  <p class="quote">“It turns out that H is the number of bits produced by the source for each symbol of message.” — leading
+  to Theorem 4</p>
+  <p>The paper pivots from the channel to the <b>source</b>. If a source emits symbols with a known probability
+  structure — English text, where E is common and Q rare — how many bits does it truly generate per symbol? Shannon's
+  answer is the <b>entropy</b> <code>H = −Σ pᵢ log₂ pᵢ</code>. It is a hard floor: Theorem 4 proves you can encode long
+  messages into an average of about <code>H</code> bits per symbol, and no encoding can do better. Combine it with the
+  channel: a source of entropy <code>H</code> can be sent over a channel of capacity <code>C</code> at up to
+  <code>C/H</code> symbols per second.</p>
+  <p>The Appendix gives a concrete recipe (a <b>Shannon–Fano</b> code): sort symbols by probability, give each a
+  codeword of length ⌈log₂(1/pᵢ)⌉ read off the binary expansion of the running cumulative probability. Probable
+  symbols get short codes, rare ones long — and the average length lands between <code>H</code> and <code>H+1</code>.
+  Build it yourself below.</p>
+
+  <div class="demo" id="entDemo">
+    <span class="demo-tag">Interactive</span>
+    <h4>Entropy &amp; the Shannon–Fano code</h4>
+    <p class="hint">Set the symbol probabilities (they auto-normalize to sum to 1). The entropy <code>H</code> is computed
+    live, and a real Shannon–Fano code is built from the Appendix's algorithm. Watch the average codeword length sit in
+    the guaranteed window <code>H ≤ L &lt; H+1</code>. The defaults are Shannon's own example — and reproduce his
+    published <code>H = 1.294</code>.</p>
+    <div class="ctl" id="entCtl">
+      <label><span>P(A) = <output id="pAv">0.60</output></span><input type="range" id="pA" min="1" max="97" value="60"></label>
+      <label><span>P(B) = <output id="pBv">0.30</output></span><input type="range" id="pB" min="1" max="97" value="30"></label>
+      <label><span>P(C) = <output id="pCv">0.10</output></span><input type="range" id="pC" min="1" max="97" value="10"></label>
+      <label><span>P(D) = <output id="pDv">0.00</output></span><input type="range" id="pD" min="0" max="97" value="0"></label>
+    </div>
+    <div class="stats">
+      <div class="st"><b id="entH">—</b><span>entropy H (bits/symbol)</span></div>
+      <div class="st"><b id="entL">—</b><span>avg code length L</span></div>
+      <div class="st"><b id="entEff">—</b><span>efficiency H/L</span></div>
+    </div>
+    <table class="codetbl" id="entTbl"><thead><tr><th>symbol</th><th>probability</th><th>−log₂ p</th><th>code length</th><th>codeword</th></tr></thead><tbody></tbody></table>
+    <div class="verdict ok" id="entVerdict"></div>
+    <figcaption>Shannon–Fano codes are prefix-free: no codeword is the start of another, so a stream decodes with no
+    separators. Huffman coding (1952) later shaved off the last fraction of a bit.</figcaption>
+  </div>
+
+  <div class="codepanel">
+    <div class="codehead"><span>code · entropy and a prefix-free code</span><button class="runbtn" data-code="code4" data-out="out4">▶ Run</button></div>
+    <pre class="code" id="code4"><span class="c">// Entropy H = −Σ p·log2(p)  — bits the source makes per symbol.</span>
+<span class="k">const</span> H = ps =&gt; -ps.reduce((s,p) =&gt; p &gt; 0 ? s + p*Math.log2(p) : s, 0);
+
+<span class="c">// Shannon's own example from §11: A, B, C with these probabilities.</span>
+<span class="k">const</span> p = [0.6, 0.3, 0.1];
+print('entropy H = ' + H(p).toFixed(3) + ' bits/symbol   (the paper says 1.294)');
+
+<span class="c">// Shannon–Fano (Appendix): length ti = ceil(log2 1/pi),</span>
+<span class="c">// codeword = first ti bits of the cumulative probability.</span>
+<span class="k">function</span> code(ps) {
+  <span class="k">let</span> cum = 0;
+  <span class="k">return</span> ps.map(pi =&gt; {
+    <span class="k">const</span> t = Math.max(1, Math.ceil(Math.log2(1/pi)));
+    <span class="k">let</span> x = cum, bits = '';
+    <span class="k">for</span> (<span class="k">let</span> k = 0; k &lt; t; k++) { x *= 2; bits += x &gt;= 1 ? (x -= 1, '1') : '0'; }
+    cum += pi;
+    <span class="k">return</span> { pi, t, bits };
+  });
+}
+<span class="k">const</span> cw = code(p);
+cw.forEach((c,i) =&gt; print('  ' + 'ABC'[i] + ' (p=' + c.pi + '): ' + c.bits));
+<span class="k">const</span> L = cw.reduce((s,c) =&gt; s + c.pi*c.t, 0);
+print('avg length L = ' + L.toFixed(3) + '  →  H ≤ L &lt; H+1 holds');</pre>
+    <div class="codeout" id="out4"></div>
+  </div>
+</section>
+
+<!-- ============================================================ XII -->
+<section class="paper-sec" id="s12">
+  <div class="eyebrow"><span class="no">§ 12</span> · Good enough, on purpose</div>
+  <h2>Continuous Sources</h2>
+  <p class="quote">“We cannot send continuous information exactly over a channel of finite capacity. Fortunately, we do
+  not need to send continuous messages exactly.”</p>
+  <p>A continuous source — a live voice, a video — carries <em>infinite</em> information: pinning down one real number
+  exactly needs infinitely many bits. So exact transmission over any finite channel is hopeless. Shannon's escape is to
+  give up on “exact” deliberately: fix a <b>fidelity criterion</b> (say, tolerable RMS error √N₁), and suddenly the
+  source has a finite rate again — the number of bits needed to reproduce it <em>within that tolerance</em>.</p>
+  <p>Geometrically, each message needs its own little sphere of “close enough” reproductions; count how many such
+  spheres tile the message space and you get the rate. Theorem 5 bounds it, and in the clean case the transmittable
+  condition is simply <code>(W₁/2)·log₂(Q/N₁) ≤ W·log₂((P+N)/N)</code> — source rate on the left, channel capacity on
+  the right. This is the birth of <b>rate–distortion theory</b>: the formal reason a compressed photo or a streamed song
+  can look and sound perfect while throwing most of the raw data away.</p>
+  <div class="keyidea"><b>Key idea:</b> "perfect" is the wrong target for continuous signals. Name how much error you'll
+  accept and information theory hands you the exact minimum bit-rate to hit it — no more, no less.</div>
+</section>
+
+<!-- ============================================================ synthesis -->
+<section class="paper-sec" id="s13">
+  <div class="eyebrow"><span class="no">§ ✦</span> · One argument, assembled</div>
+  <h2>The Argument, Assembled</h2>
+  <p>Retrace the chain and the paper reads as a single deduction. A band-limited signal is really just
+  <b>2TW numbers</b> (§II) — so it is a <b>point in a 2TW-dimensional space</b> (§III), where power becomes a radius and
+  noise becomes a blur. Messages live in their own space, shrunk to their <b>effective dimension D</b> by what the
+  source produces and the destination can perceive (§IV), and modulation is nothing but a <b>mapping between the two
+  spaces</b> (§V). Reading that geometry off directly explains bandwidth-for-power trades and their unavoidable
+  <b>threshold cliffs</b> (§VI).</p>
+  <p>Then the payoff: counting how many noise-blurred points pack into the signal sphere yields the exact
+  <b>capacity C = W log₂(1+P/N)</b> (§VII), reachable but never exceedable, with sharply diminishing returns from
+  bandwidth (§VIII). Coloured noise is handled by <b>water-filling</b> power into the quiet frequencies (§IX), and any
+  noise at all is bounded through its <b>entropy power</b>, with white Gaussian proven worst (§X). Finally the source
+  side: its irreducible rate is its <b>entropy H</b> (§XI), and continuous sources get a finite rate only once you fix a
+  <b>fidelity criterion</b> (§XII). Source entropy on one side, channel capacity on the other, and a single inequality
+  saying whether the message fits. In eleven pages, communication became a science with numbers.</p>
+</section>
+
+<!-- ============================================================ beyond -->
+<section class="paper-sec" id="beyond">
+  <span class="supp-tag">Supplementary — not in the 1949 paper</span>
+  <h2>Beyond the Whitepaper</h2>
+  <p>What the last seventy-five years built on Shannon's foundations. None of this is in the original paper; all of it
+  assumes it.</p>
+  <div class="beyondgrid">
+    <div class="bcard">
+      <h3><span class="mono">44,100 samples a second</span>Digital Audio &amp; the CD</h3>
+      <p>Human hearing tops out near 20 kHz, so §II demands at least 40,000 samples/second to capture it perfectly. The
+      Compact Disc's 44.1 kHz rate is Theorem 1 turned into a consumer product — the little headroom above 2W leaves
+      room for the anti-alias filter the §II demo makes you feel when f<sub>s</sub> drops too low.</p>
+    </div>
+    <div class="bcard">
+      <h3><span class="mono">Closing the 8 dB gap</span>Capacity-Approaching Codes</h3>
+      <p>Shannon proved <code>C</code> was reachable but gave no practical code; real systems sat ~8 dB short for
+      decades. Turbo codes (1993), then LDPC and polar codes, finally crept to within a fraction of a dB of the limit.
+      They power 5G, Wi-Fi 6 and deep-space links — the long block-codes of §VII, made real.</p>
+    </div>
+    <div class="bcard">
+      <h3><span class="mono">Water-filling everywhere</span>DSL, Wi-Fi &amp; MIMO</h3>
+      <p>§IX's water-filling is not a curiosity — it is the daily arithmetic of every OFDM modem, splitting the band into
+      hundreds of sub-carriers and pouring power into the clean ones. Multiple antennas (MIMO) extend it to spatial
+      "sub-channels," multiplying capacity by using more of the sphere.</p>
+    </div>
+    <div class="bcard">
+      <h3><span class="mono">Good-enough by design</span>Rate–Distortion &amp; JPEG</h3>
+      <p>§XII's "name your tolerable error, get a finite bit-rate" grew into rate–distortion theory — the mathematical
+      backbone of every lossy codec. JPEG, MP3, H.264 and their kin all trade a controlled amount of fidelity for a huge
+      cut in bits, exactly as Shannon licensed here.</p>
+    </div>
+    <div class="bcard">
+      <h3><span class="mono">A companion paper</span>The 1948 Twin</h3>
+      <p>This paper's discrete-source ideas (§XI) are the continuous-channel companion to Shannon's monumental 1948
+      "A Mathematical Theory of Communication," cited here as reference 10. Together they founded information theory as a
+      field; this 1949 paper is where the geometry and the famous capacity formula live.</p>
+    </div>
+    <div class="bcard">
+      <h3><span class="mono">What survived contact with reality</span>The Scorecard</h3>
+      <p>Held up completely: the sampling theorem and <code>C = W log₂(1+P/N)</code> are still exact and still binding —
+      every link budget on Earth and in space respects them. Took longest to realize: the promised near-perfect coding,
+      which needed 45 years of math to build. Nothing in the core has ever been overturned.</p>
+    </div>
+  </div>
+</section>
+
+</main>
+</div>
+
+<footer>
+  An interactive companion to Claude E. Shannon, “Communication in the Presence of Noise,” <em>Proc. I.R.E.</em>
+  <b>37</b>(1), 10–21, January 1949.<br>
+  Every number, curve, sample, waterline and codeword on this page is computed live in your browser — no libraries, no
+  network. Like the subject, it verifies itself.
+</footer>
+
+<script>
+/* ============================================================
+   Pure functions (also exercised by the node self-test)
+   ============================================================ */
+
+function sinc(x){ if (x === 0) return 1; const px = Math.PI * x; return Math.sin(px) / px; }
+
+/* Sum of sinusoids: harmonics = [{f, a}, ...], value at time t. */
+function signalValue(harmonics, t){
+  let s = 0;
+  for (const h of harmonics) s += h.a * Math.sin(2 * Math.PI * h.f * t);
+  return s;
+}
+
+/* Whittaker–Shannon reconstruction (Eq. 7) from samples x[n] taken at rate fs. */
+function reconstruct(samples, fs, t){
+  let s = 0;
+  for (let n = 0; n < samples.length; n++) s += samples[n] * sinc(fs * t - n);
+  return s;
+}
+
+/* Theorem 2: channel capacity in bits/second. */
+function channelCapacity(W, P, N){ return W * Math.log2((P + N) / N); }
+
+/* Number of distinguishable signals in time T (Eq. 21 / 22): M = ((P+N)/N)^(TW). */
+function distinguishableSignals(P, N, T, W){ return Math.pow((P + N) / N, T * W); }
+
+/* Shannon entropy H = −Σ p·log2 p (bits). */
+function shannonEntropy(ps){
+  let h = 0;
+  for (const p of ps) if (p > 0) h -= p * Math.log2(p);
+  return h;
+}
+
+/* Shannon–Fano code (paper's Appendix): sorted by decreasing probability,
+   length ti = ceil(log2 1/pi), codeword = first ti bits of cumulative probability. */
+function shannonFanoCodes(ps){
+  const order = ps.map((p, i) => ({ p, i })).filter(o => o.p > 0).sort((a, b) => b.p - a.p);
+  let cum = 0;
+  const out = [];
+  for (const o of order){
+    const t = Math.max(1, Math.ceil(Math.log2(1 / o.p)));
+    let x = cum, bits = '';
+    for (let k = 0; k < t; k++){ x *= 2; if (x >= 1){ bits += '1'; x -= 1; } else bits += '0'; }
+    out.push({ sym: o.i, p: o.p, len: t, code: bits });
+    cum += o.p;
+  }
+  return out;
+}
+function avgCodeLength(codes){ return codes.reduce((s, c) => s + c.p * c.len, 0); }
+
+/* Water-filling (§IX): pour total power P over noise floor; return level + per-band power. */
+function waterFill(noise, P){
+  const poured = L => noise.reduce((s, n) => s + Math.max(0, L - n), 0);
+  let lo = Math.min(...noise), hi = lo + P + Math.max(...noise);
+  while (poured(hi) < P) hi *= 2;
+  for (let i = 0; i < 100; i++){ const mid = (lo + hi) / 2; if (poured(mid) < P) lo = mid; else hi = mid; }
+  const level = (lo + hi) / 2;
+  return { level, power: noise.map(n => Math.max(0, level - n)) };
+}
+
+/* ============================================================
+   UI wiring (browser only)
+   ============================================================ */
+function initUI(){
+  const $ = s => document.querySelector(s);
+  const $$ = s => [...document.querySelectorAll(s)];
+  const NS = 'http://www.w3.org/2000/svg';
+  const el = (tag, attrs) => { const e = document.createElementNS(NS, tag); for (const k in attrs) e.setAttribute(k, attrs[k]); return e; };
+  const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  /* ---------- hero signature: entropy of the title ---------- */
+  (function(){
+    const title = "Communication in the Presence of Noise";
+    const counts = {};
+    for (const ch of title) counts[ch] = (counts[ch] || 0) + 1;
+    const probs = Object.values(counts).map(c => c / title.length);
+    const H = shannonEntropy(probs);
+    const strip = $('#heroHash');
+    strip.querySelector('span').textContent =
+      'H = ' + H.toFixed(4) + ' bits/char · ' + title.length + ' chars · ' + Math.ceil(H * title.length) + ' bits minimum';
+    const bits = [...title.slice(0, 8)].map(c => c.charCodeAt(0).toString(2).padStart(8, '0')).join(' ');
+    strip.querySelector('.bits').textContent = bits + ' …';
+    requestAnimationFrame(() => strip.classList.add('show'));
+  })();
+
+  /* ---------- TOC highlight ---------- */
+  const tocLinks = $$('nav.toc a');
+  const byId = {}; tocLinks.forEach(a => byId[a.getAttribute('href').slice(1)] = a);
+  const obs = new IntersectionObserver(es => {
+    es.forEach(e => { if (e.isIntersecting){
+      tocLinks.forEach(a => a.classList.remove('active'));
+      (byId[e.target.id] || {}).classList?.add('active');
+    }});
+  }, { rootMargin: '-15% 0px -70% 0px' });
+  $$('.paper-sec').forEach(s => obs.observe(s));
+
+  /* ---------- runnable code panels ---------- */
+  $$('.runbtn').forEach(btn => btn.addEventListener('click', () => {
+    const code = document.getElementById(btn.dataset.code).textContent;   // spans stripped
+    const out = document.getElementById(btn.dataset.out);
+    out.textContent = ''; out.classList.add('open');
+    const print = s => { out.textContent += '▸ ' + s + '\n'; };
+    try { new Function('print', code)(print); }
+    catch (err){ out.textContent += '✕ ' + err.message + '\n'; }
+  }));
+
+  /* ---------- §II sampling demo ---------- */
+  (function(){
+    const svg = $('#smpSvg'), verdict = $('#smpVerdict');
+    const smpW = $('#smpW'), smpFs = $('#smpFs');
+    const T = 1.2;                 // window shown, seconds
+    const X0 = 40, X1 = 685, Y0 = 15, Y1 = 200, MID = (Y0 + Y1) / 2;
+    function render(){
+      const W = +smpW.value, fs = +smpFs.value;
+      $('#smpWv').textContent = W; $('#smpFsv').textContent = fs;
+      // three tones up to W, fixed relative shape
+      const harm = [{f: 0.4 * W, a: 1}, {f: 0.75 * W, a: 0.6}, {f: W, a: 0.4}];
+      const amp = 2;               // vertical scale
+      const tx = t => X0 + (t / T) * (X1 - X0);
+      const ty = v => MID - (v / amp) * ((Y1 - Y0) / 2 - 8);
+      // samples across window
+      const nS = Math.floor(fs * T);
+      const samples = Array.from({length: nS}, (_, n) => signalValue(harm, n / fs));
+      svg.innerHTML = '';
+      // baseline
+      svg.appendChild(el('line', {x1: X0, y1: MID, x2: X1, y2: MID, stroke: '#DDE0D6', 'stroke-width': 1}));
+      // true signal (dense)
+      let d = '', d2 = '';
+      const aliased = fs < 2 * W;
+      for (let i = 0; i <= 480; i++){
+        const t = T * i / 480;
+        d  += (i ? 'L' : 'M') + tx(t).toFixed(1) + ',' + ty(signalValue(harm, t)).toFixed(1) + ' ';
+        d2 += (i ? 'L' : 'M') + tx(t).toFixed(1) + ',' + ty(reconstruct(samples, fs, t)).toFixed(1) + ' ';
+      }
+      svg.appendChild(el('path', {d, fill: 'none', stroke: '#9AA6AE', 'stroke-width': 2}));
+      const recPath = el('path', {d: d2, fill: 'none', 'stroke-width': 2.4, stroke: aliased ? '#C43D2E' : '#1C6E8C', 'stroke-dasharray': aliased ? '6 4' : '0'});
+      svg.appendChild(recPath);
+      // sample stems + dots
+      samples.forEach((v, n) => {
+        const t = n / fs; if (t > T) return;
+        svg.appendChild(el('line', {x1: tx(t), y1: MID, x2: tx(t), y2: ty(v), stroke: '#E7C39B', 'stroke-width': 1}));
+        svg.appendChild(el('circle', {cx: tx(t), cy: ty(v), r: 3.2, fill: '#CC6B1F'}));
+      });
+      // Nyquist label
+      const lab = el('text', {x: X0, y: Y1 + 22, 'font-family': 'ui-monospace,Consolas,monospace', 'font-size': 11, fill: '#5A6772'});
+      lab.textContent = 'Nyquist rate 2W = ' + (2 * W) + ' /s';
+      svg.appendChild(lab);
+      verdict.className = 'verdict ' + (aliased ? 'bad' : 'ok');
+      verdict.textContent = aliased
+        ? 'fₛ = ' + fs + ' < 2W = ' + (2 * W) + ' — UNDERSAMPLED. The reconstruction (red) departs from the true signal: aliasing. Different signals now share these same dots.'
+        : 'fₛ = ' + fs + ' ≥ 2W = ' + (2 * W) + ' — the samples are sufficient. Reconstruction (teal) rides exactly on the true signal: nothing was lost.';
+    }
+    smpW.addEventListener('input', render); smpFs.addEventListener('input', render);
+    render();
+  })();
+
+  /* ---------- §III sphere stats ---------- */
+  (function(){
+    const T = $('#spTr'), W = $('#spWr'), P = $('#spPr');
+    function render(){
+      const t = +T.value, w = +W.value, p = +P.value;
+      $('#spT').textContent = t; $('#spW').textContent = w; $('#spP').textContent = p;
+      $('#spDim').textContent = (2 * t * w).toLocaleString();
+      $('#spRad').textContent = Math.sqrt(2 * w * t * p).toFixed(1);
+      $('#spEng').textContent = (t * p).toFixed(0);
+    }
+    [T, W, P].forEach(s => s.addEventListener('input', render));
+    render();
+  })();
+
+  /* ---------- §VII capacity calculator + geometry ---------- */
+  (function(){
+    const capW = $('#capW'), capSnr = $('#capSnr'), svg = $('#capSvg');
+    function fmt(n){
+      if (n >= 1e9) return (n / 1e9).toFixed(2) + 'e9';
+      if (n >= 1e6) return (n / 1e6).toFixed(2) + 'M';
+      if (n >= 1e3) return (n / 1e3).toFixed(1) + 'k';
+      return n.toFixed(0);
+    }
+    function render(){
+      const W = +capW.value, snrDb = +capSnr.value, ratio = Math.pow(10, snrDb / 10);   // P/N
+      $('#capWv').textContent = W; $('#capSnrv').textContent = snrDb;
+      const C = channelCapacity(W, ratio, 1);        // P=ratio, N=1
+      const CW = Math.log2(1 + ratio);
+      const M = distinguishableSignals(ratio, 1, 1, W);   // T=1
+      $('#capC').textContent = fmt(C);
+      $('#capCW').textContent = CW.toFixed(2);
+      $('#capM').textContent = isFinite(M) ? fmt(M) : '10^' + (Math.log10(1 + ratio) * W).toFixed(0);
+      // ---- drawing: left sphere-packing cross section, right curve ----
+      svg.innerHTML = '';
+      // LEFT: nested circles, radius ~ sqrt(P+N) vs sqrt(N)
+      const cx = 150, cy = 105, Rbig = 90;
+      const Rn = Rbig * Math.sqrt(1 / (1 + ratio));      // noise ball radius relative to received sphere
+      svg.appendChild(el('circle', {cx, cy, r: Rbig, fill: '#E1EEF3', stroke: '#1C6E8C', 'stroke-width': 1.6}));
+      // pack noise balls on a grid inside
+      const rr = Math.max(4, Rn);
+      let packed = 0;
+      for (let gy = -Rbig; gy <= Rbig; gy += 2 * rr){
+        for (let gx = -Rbig; gx <= Rbig; gx += 2 * rr){
+          if (Math.hypot(gx, gy) + rr <= Rbig){
+            svg.appendChild(el('circle', {cx: cx + gx, cy: cy + gy, r: rr * 0.82, fill: '#fff', stroke: '#CC6B1F', 'stroke-width': 1}));
+            packed++;
+          }
+        }
+      }
+      const cap1 = el('text', {x: cx, y: 208, 'text-anchor': 'middle', 'font-family': 'ui-monospace,Consolas,monospace', 'font-size': 11, fill: '#124F66'});
+      cap1.textContent = '~' + packed + ' noise-balls packed (2-D slice)';
+      svg.appendChild(cap1);
+      // RIGHT: C/W vs SNR(dB) curve, Fig 6
+      const gx0 = 340, gx1 = 680, gy0 = 20, gy1 = 175;
+      const dbMin = -10, dbMax = 40, cwMax = Math.log2(1 + Math.pow(10, dbMax / 10)); // ~13.3
+      const px = db => gx0 + (db - dbMin) / (dbMax - dbMin) * (gx1 - gx0);
+      const py = cw => gy1 - cw / cwMax * (gy1 - gy0);
+      svg.appendChild(el('line', {x1: gx0, y1: gy1, x2: gx1, y2: gy1, stroke: '#9AA6AE', 'stroke-width': 1}));
+      svg.appendChild(el('line', {x1: gx0, y1: gy0, x2: gx0, y2: gy1, stroke: '#9AA6AE', 'stroke-width': 1}));
+      let cd = '';
+      for (let i = 0; i <= 120; i++){
+        const db = dbMin + (dbMax - dbMin) * i / 120;
+        cd += (i ? 'L' : 'M') + px(db).toFixed(1) + ',' + py(Math.log2(1 + Math.pow(10, db / 10))).toFixed(1) + ' ';
+      }
+      svg.appendChild(el('path', {d: cd, fill: 'none', stroke: '#1C6E8C', 'stroke-width': 2}));
+      // marker dot
+      svg.appendChild(el('circle', {cx: px(snrDb), cy: py(CW), r: 5, fill: '#CC6B1F', stroke: '#fff', 'stroke-width': 1.5}));
+      [['-10', -10], ['0', 0], ['20', 20], ['40', 40]].forEach(([t, db]) => {
+        const tx = el('text', {x: px(db), y: gy1 + 16, 'text-anchor': 'middle', 'font-family': 'ui-monospace,Consolas,monospace', 'font-size': 10, fill: '#5A6772'});
+        tx.textContent = t; svg.appendChild(tx);
+      });
+      const ax = el('text', {x: (gx0 + gx1) / 2, y: 205, 'text-anchor': 'middle', 'font-family': 'ui-monospace,Consolas,monospace', 'font-size': 11, fill: '#5A6772'});
+      ax.textContent = 'P/N (dB)  →   C/W (bits/Hz)'; svg.appendChild(ax);
+    }
+    capW.addEventListener('input', render); capSnr.addEventListener('input', render);
+    render();
+  })();
+
+  /* ---------- §VIII bandwidth asymptote (Fig 7) ---------- */
+  (function(){
+    const bwW = $('#bwW'), svg = $('#bwSvg');
+    // C/C(W0) where C = W log2(1 + W0/W) in units of W0; C(W0)=log2(2)=1.
+    const capOf = wRatio => wRatio * Math.log2(1 + 1 / wRatio);   // in units of W0, since C=W log2(1+W0/W)
+    function render(){
+      const wr = +bwW.value / 10;   // W/W0 from 0.1..12
+      $('#bwWv').textContent = wr.toFixed(1);
+      const c = capOf(wr);
+      $('#bwC').textContent = c.toFixed(3);
+      $('#bwGap').textContent = (c / Math.LOG2E * 100).toFixed(1) + '%';
+      svg.innerHTML = '';
+      const X0 = 40, X1 = 680, Y0 = 20, Y1 = 165, wmax = 12, ymax = 1.6;
+      const px = x => X0 + x / wmax * (X1 - X0);
+      const py = y => Y1 - y / ymax * (Y1 - Y0);
+      // asymptote 1.443
+      svg.appendChild(el('line', {x1: X0, y1: py(Math.LOG2E), x2: X1, y2: py(Math.LOG2E), stroke: '#C43D2E', 'stroke-width': 1, 'stroke-dasharray': '5 4'}));
+      const at = el('text', {x: X1 - 4, y: py(Math.LOG2E) - 6, 'text-anchor': 'end', 'font-family': 'ui-monospace,Consolas,monospace', 'font-size': 11, fill: '#C43D2E'});
+      at.textContent = 'asymptote 1.443 = log₂e'; svg.appendChild(at);
+      // axes
+      svg.appendChild(el('line', {x1: X0, y1: Y1, x2: X1, y2: Y1, stroke: '#9AA6AE', 'stroke-width': 1}));
+      svg.appendChild(el('line', {x1: X0, y1: Y0, x2: X0, y2: Y1, stroke: '#9AA6AE', 'stroke-width': 1}));
+      let d = '';
+      for (let i = 1; i <= 240; i++){
+        const x = wmax * i / 240;
+        d += (i === 1 ? 'M' : 'L') + px(x).toFixed(1) + ',' + py(capOf(x)).toFixed(1) + ' ';
+      }
+      svg.appendChild(el('path', {d, fill: 'none', stroke: '#1C6E8C', 'stroke-width': 2}));
+      svg.appendChild(el('circle', {cx: px(wr), cy: py(c), r: 5, fill: '#CC6B1F', stroke: '#fff', 'stroke-width': 1.5}));
+      const ax = el('text', {x: (X0 + X1) / 2, y: 192, 'text-anchor': 'middle', 'font-family': 'ui-monospace,Consolas,monospace', 'font-size': 11, fill: '#5A6772'});
+      ax.textContent = 'W / W₀   →   C / C(W₀)'; svg.appendChild(ax);
+    }
+    bwW.addEventListener('input', render);
+    render();
+  })();
+
+  /* ---------- §IX water-filling ---------- */
+  (function(){
+    const wfP = $('#wfP'), svg = $('#wfSvg'), shuffle = $('#wfShuffle');
+    let noise = [3, 5, 9, 6, 2, 4, 7, 3, 5, 8, 4, 2];
+    function newNoise(){ noise = Array.from({length: 12}, () => 1 + Math.round(Math.random() * 9)); }
+    function render(){
+      const P = +wfP.value;
+      $('#wfPv').textContent = P;
+      const { level, power } = waterFill(noise, P);
+      const used = power.filter(p => p > 1e-6).length;
+      $('#wfLevel').textContent = level.toFixed(1);
+      $('#wfUsed').textContent = used + ' / ' + noise.length;
+      // relative capacity Σ log2(1 + P_i/N_i)
+      const cap = noise.reduce((s, n, i) => s + Math.log2(1 + power[i] / n), 0);
+      $('#wfCap').textContent = cap.toFixed(2);
+      svg.innerHTML = '';
+      const X0 = 40, X1 = 685, Y0 = 15, Y1 = 195;
+      const bw = (X1 - X0) / noise.length, ymax = Math.max(level, Math.max(...noise)) * 1.15;
+      const py = v => Y1 - v / ymax * (Y1 - Y0);
+      // waterline
+      svg.appendChild(el('line', {x1: X0, y1: py(level), x2: X1, y2: py(level), stroke: '#1C6E8C', 'stroke-width': 1.4, 'stroke-dasharray': '6 4'}));
+      const wl = el('text', {x: X0 + 2, y: py(level) - 5, 'font-family': 'ui-monospace,Consolas,monospace', 'font-size': 11, fill: '#124F66'});
+      wl.textContent = 'water level'; svg.appendChild(wl);
+      noise.forEach((n, i) => {
+        const x = X0 + i * bw + 3, w = bw - 6;
+        // noise floor (grey)
+        svg.appendChild(el('rect', {x, y: py(n), width: w, height: Y1 - py(n), fill: '#C9CEC2', stroke: '#AEB4A6', 'stroke-width': 0.6}));
+        // signal power on top (orange), or mark dry
+        if (power[i] > 1e-6){
+          svg.appendChild(el('rect', {x, y: py(n + power[i]), width: w, height: py(n) - py(n + power[i]), fill: '#CC6B1F', opacity: 0.85}));
+        } else {
+          const dry = el('text', {x: x + w / 2, y: py(n) - 6, 'text-anchor': 'middle', 'font-family': 'ui-monospace,Consolas,monospace', 'font-size': 10, fill: '#C43D2E', 'font-weight': 700});
+          dry.textContent = 'dry'; svg.appendChild(dry);
+        }
+      });
+      svg.appendChild(el('line', {x1: X0, y1: Y1, x2: X1, y2: Y1, stroke: '#9AA6AE', 'stroke-width': 1}));
+      const ax = el('text', {x: (X0 + X1) / 2, y: 222, 'text-anchor': 'middle', 'font-family': 'ui-monospace,Consolas,monospace', 'font-size': 11, fill: '#5A6772'});
+      ax.textContent = 'frequency band  →   (grey = noise N(f), orange = signal P(f))'; svg.appendChild(ax);
+    }
+    wfP.addEventListener('input', render);
+    shuffle.addEventListener('click', () => { newNoise(); render(); });
+    render();
+  })();
+
+  /* ---------- §XI entropy + Shannon–Fano ---------- */
+  (function(){
+    const sl = { A: $('#pA'), B: $('#pB'), C: $('#pC'), D: $('#pD') };
+    const names = ['A', 'B', 'C', 'D'];
+    function render(){
+      const raw = names.map(k => +sl[k].value);
+      const tot = raw.reduce((a, b) => a + b, 0) || 1;
+      const p = raw.map(v => v / tot);
+      names.forEach((k, i) => $('#p' + k + 'v').textContent = p[i].toFixed(2));
+      const H = shannonEntropy(p);
+      const codes = shannonFanoCodes(p);
+      const L = avgCodeLength(codes);
+      $('#entH').textContent = H.toFixed(3);
+      $('#entL').textContent = L.toFixed(3);
+      $('#entEff').textContent = (H / L * 100).toFixed(1) + '%';
+      const bySym = {}; codes.forEach(c => bySym[c.sym] = c);
+      const tb = $('#entTbl tbody'); tb.innerHTML = '';
+      names.forEach((k, i) => {
+        if (p[i] <= 0) return;
+        const c = bySym[i];
+        const tr = document.createElement('tr');
+        tr.innerHTML = '<td>' + k + '</td><td>' + p[i].toFixed(3) + '</td><td>' +
+          (-Math.log2(p[i])).toFixed(2) + '</td><td>' + c.len + '</td><td class="cw">' + c.code + '</td>';
+        tb.appendChild(tr);
+      });
+      const v = $('#entVerdict');
+      const ok = H <= L + 1e-9 && L < H + 1 + 1e-9;
+      v.className = 'verdict ' + (ok ? 'ok' : 'bad');
+      v.textContent = ok
+        ? 'Guarantee holds:  H = ' + H.toFixed(3) + '  ≤  L = ' + L.toFixed(3) + '  <  H+1 = ' + (H + 1).toFixed(3) + '.  The code is within one bit of the entropy floor.'
+        : 'Unexpected: L outside [H, H+1).';
+    }
+    Object.values(sl).forEach(s => s.addEventListener('input', render));
+    render();
+  })();
+}
+
+if (typeof document !== 'undefined') initUI();
+/* Exports for the node self-test; inert in the browser. */
+if (typeof module !== 'undefined' && module.exports) module.exports = {
+  sinc, signalValue, reconstruct, channelCapacity, distinguishableSignals,
+  shannonEntropy, shannonFanoCodes, avgCodeLength, waterFill
+};
+</script>
+</body>
+</html>

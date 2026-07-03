@@ -2,4 +2,6 @@ Have you decided to upgrade your skills by going straight to the source- learnin
 This repo gives you a way to interact with these papers and learn the concepts in real time through HTML artifacts. We currently have-  
   1.) Bitcoin Whitepaper  
   2.) Ethereum Whitepaper  
+  3.) Nyquist - Certain Topics in Telegraph Transmission Theory  
+  4.) Shannon - A Mathematical Theory of Communication  
 And more on the way!

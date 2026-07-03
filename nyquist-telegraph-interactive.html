@@ -1,0 +1,1193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Certain Topics in Telegraph Transmission Theory — An Interactive Reading</title>
+<style>
+  :root{
+    --paper:#F8F6F1;
+    --panel:#FFFFFF;
+    --ink:#23282C;
+    --muted:#5D6870;
+    --line:#E0DDD3;
+    --grid:rgba(35,40,44,.045);
+    --copper:#B4530A;
+    --copper-ink:#8A3E08;
+    --copper-soft:#F7E9DC;
+    --blue:#2E5E85;
+    --blue-soft:#E6EEF4;
+    --red:#BF3B2B;
+    --red-soft:#FBEAE7;
+    --code-bg:#171F26;
+    --code-ink:#D8E1E8;
+    --code-dim:#7A8B96;
+    --serif:Charter,'Iowan Old Style','Palatino Linotype',Georgia,serif;
+    --mono:ui-monospace,'Cascadia Code',Consolas,'SF Mono',Menlo,monospace;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    margin:0;background:var(--paper);color:var(--ink);
+    font-family:var(--serif);font-size:17px;line-height:1.65;
+  }
+  ::selection{background:var(--copper-soft)}
+  a{color:var(--blue)}
+  code{font-family:var(--mono);font-size:.85em;background:#EEEBE2;padding:1px 5px;border-radius:4px}
+  .mono{font-family:var(--mono)}
+
+  /* ---------- masthead ---------- */
+  header.hero{
+    border-bottom:1px solid var(--line);
+    padding:64px 24px 40px;text-align:center;
+    background:
+      repeating-linear-gradient(0deg,transparent,transparent 23px,var(--grid) 23px,var(--grid) 24px),
+      repeating-linear-gradient(90deg,transparent,transparent 23px,var(--grid) 23px,var(--grid) 24px),
+      var(--paper);
+  }
+  .hero .eyebrow{margin-bottom:18px}
+  .hero h1{
+    font-size:clamp(30px,5vw,46px);line-height:1.15;margin:0 auto 14px;max-width:820px;
+    font-weight:700;letter-spacing:-.01em;
+  }
+  .hero .byline{color:var(--muted);font-size:15px;margin-bottom:26px}
+  .hero .byline b{color:var(--ink)}
+  .morsestrip{
+    font-family:var(--mono);font-size:13px;letter-spacing:.04em;color:var(--copper-ink);
+    word-break:break-all;max-width:720px;margin:0 auto;opacity:0;transition:opacity 1.6s ease;
+    line-height:1.9;
+  }
+  .morsestrip.show{opacity:.9}
+  .morsestrip small{display:block;letter-spacing:.12em;color:var(--muted);margin-bottom:6px;text-transform:uppercase;font-size:11px}
+  .hero .abstract{
+    max-width:660px;margin:30px auto 0;font-style:italic;color:var(--muted);
+    border-top:1px solid var(--line);padding-top:22px;font-size:16px;
+  }
+
+  .eyebrow{
+    font-family:var(--mono);font-size:12px;text-transform:uppercase;
+    letter-spacing:.16em;color:var(--muted);
+  }
+  .eyebrow .no{color:var(--copper-ink);font-weight:700}
+
+  /* ---------- layout ---------- */
+  .wrap{
+    display:grid;grid-template-columns:220px minmax(0,760px);
+    gap:64px;justify-content:center;padding:56px 24px 0;
+  }
+  nav.toc{position:sticky;top:24px;align-self:start;font-family:var(--mono);font-size:12.5px}
+  nav.toc .toc-title{letter-spacing:.16em;text-transform:uppercase;color:var(--muted);margin-bottom:14px}
+  nav.toc a{
+    display:block;color:var(--muted);text-decoration:none;padding:4px 0 4px 12px;
+    border-left:2px solid var(--line);line-height:1.4;
+  }
+  nav.toc a:hover{color:var(--ink)}
+  nav.toc a.active{color:var(--copper-ink);border-left-color:var(--copper);font-weight:700}
+  nav.toc a.extra{color:var(--blue)}
+  main{min-width:0}
+
+  section.paper-sec{padding:8px 0 40px;border-bottom:1px solid var(--line);scroll-margin-top:16px}
+  section.paper-sec h2{font-size:27px;margin:10px 0 4px;letter-spacing:-.01em}
+  .nyquist-says{
+    font-style:italic;color:var(--muted);font-size:15.5px;margin:14px 0 18px;
+    padding-left:16px;border-left:3px solid var(--copper);
+  }
+  .keyidea{
+    background:var(--blue-soft);border:1px solid #C6D7E3;border-radius:8px;
+    padding:12px 16px;margin:20px 0;font-size:16px;
+  }
+  .keyidea b{color:var(--blue)}
+
+  /* ---------- demo panels ---------- */
+  .demo{
+    background:
+      repeating-linear-gradient(0deg,transparent,transparent 23px,var(--grid) 23px,var(--grid) 24px),
+      repeating-linear-gradient(90deg,transparent,transparent 23px,var(--grid) 23px,var(--grid) 24px),
+      var(--panel);
+    border:1px solid var(--line);border-radius:10px;padding:20px;margin:26px 0;
+  }
+  .demo-tag{
+    display:inline-block;font-family:var(--mono);font-size:10.5px;font-weight:700;
+    text-transform:uppercase;letter-spacing:.14em;color:#fff;background:var(--copper);
+    padding:3px 9px;border-radius:20px;margin-bottom:12px;
+  }
+  .demo-tag.fig{background:var(--blue)}
+  .demo h4{margin:0 0 6px;font-size:17px}
+  .demo .hint{color:var(--muted);font-size:14px;margin:4px 0 14px}
+  .demo svg{display:block;max-width:100%;height:auto}
+  .demo figcaption{font-size:13.5px;color:var(--muted);font-family:var(--mono);margin-top:10px}
+  .ctrlrow{display:flex;gap:18px;flex-wrap:wrap;align-items:flex-end;margin-bottom:12px}
+  .ctrlrow label{display:flex;flex-direction:column;gap:4px;font-family:var(--mono);font-size:11px;text-transform:uppercase;letter-spacing:.1em;color:var(--muted)}
+  .ctrlrow output{font-weight:700;color:var(--ink);font-size:14px;text-transform:none}
+  .readout{font-family:var(--mono);font-size:13.5px;margin-top:10px}
+  .readout b{color:var(--copper-ink)}
+  .readout .ok{color:var(--blue);font-weight:700}
+  .readout .bad{color:var(--red);font-weight:700}
+
+  button{
+    font-family:var(--mono);font-size:13px;font-weight:700;cursor:pointer;
+    border:1px solid var(--ink);background:var(--ink);color:#fff;
+    border-radius:6px;padding:7px 16px;
+  }
+  button:hover{background:#39444c}
+  button.secondary{background:transparent;color:var(--ink)}
+  button.secondary:hover{background:#edeae1}
+  button:disabled{opacity:.5;cursor:wait}
+  button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible{
+    outline:2px solid var(--copper);outline-offset:2px;
+  }
+  input[type=text],select{
+    font-family:var(--mono);font-size:13px;color:var(--ink);
+    border:1px solid var(--line);border-radius:6px;padding:7px 10px;background:#fff;
+  }
+  input[type=range]{accent-color:var(--copper)}
+
+  /* ---------- signal element cells ---------- */
+  .elemrow{display:flex;gap:6px;flex-wrap:wrap;margin:10px 0 4px}
+  .elem{
+    width:44px;height:44px;border:1.6px solid var(--ink);border-radius:8px;background:#fff;
+    font-family:var(--mono);font-size:15px;font-weight:700;color:var(--ink);cursor:pointer;
+    display:flex;align-items:center;justify-content:center;padding:0;
+  }
+  .elem.pos{background:var(--copper-soft);border-color:var(--copper);color:var(--copper-ink)}
+  .elem.neg{background:var(--blue-soft);border-color:var(--blue);color:var(--blue)}
+  .elem:hover{transform:translateY(-1px)}
+  .elemnote{font-family:var(--mono);font-size:11.5px;color:var(--muted);margin-bottom:8px}
+
+  /* ---------- code panels ---------- */
+  .codepanel{border-radius:10px;overflow:hidden;margin:26px 0;border:1px solid #0d151c}
+  .codehead{
+    display:flex;justify-content:space-between;align-items:center;
+    background:#0D151C;color:var(--code-dim);font-family:var(--mono);
+    font-size:12px;padding:8px 14px;letter-spacing:.06em;
+  }
+  .codehead button{padding:4px 14px;font-size:12px;background:var(--copper);border-color:var(--copper);color:#fff}
+  .codehead button:hover{background:#cc6a1f}
+  pre.code{
+    margin:0;background:var(--code-bg);color:var(--code-ink);
+    font-family:var(--mono);font-size:13px;line-height:1.6;
+    padding:16px 18px;overflow-x:auto;tab-size:2;
+  }
+  pre.code .c{color:var(--code-dim);font-style:italic}
+  pre.code .k{color:#F0A45D}
+  .codeout{
+    background:#0D151C;color:#9FE8C3;font-family:var(--mono);font-size:12.5px;
+    padding:0 18px;max-height:0;overflow:hidden;transition:max-height .3s ease;
+    white-space:pre-wrap;word-break:break-all;line-height:1.7;
+  }
+  .codeout.open{max-height:360px;padding:12px 18px;border-top:1px solid #22303b;overflow-y:auto}
+
+  /* ---------- beyond ---------- */
+  #beyond{border-top:4px double var(--line);margin-top:48px;padding-top:36px;border-bottom:none}
+  .supp-tag{
+    display:inline-block;font-family:var(--mono);font-size:10.5px;font-weight:700;
+    letter-spacing:.14em;text-transform:uppercase;color:var(--blue);
+    border:1px solid var(--blue);border-radius:20px;padding:3px 10px;margin-bottom:10px;
+  }
+  .beyondgrid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:22px}
+  .bcard{background:#fff;border:1px solid var(--line);border-radius:10px;padding:16px 18px}
+  .bcard h3{margin:0 0 8px;font-size:17px}
+  .bcard h3 .mono{font-size:11px;color:var(--blue);display:block;letter-spacing:.12em;text-transform:uppercase;margin-bottom:6px}
+  .bcard p{margin:0;font-size:15px;color:#3A4750}
+  .bcard ul{margin:6px 0 0;padding-left:18px;font-size:14.5px;color:#3A4750}
+  .bcard li{margin:4px 0}
+
+  footer{
+    text-align:center;color:var(--muted);font-family:var(--mono);font-size:12px;
+    padding:44px 24px 56px;line-height:2;
+  }
+  footer a{color:var(--blue)}
+
+  @media (max-width:900px){
+    .wrap{grid-template-columns:minmax(0,1fr);gap:0;padding-top:32px}
+    nav.toc{position:static;display:flex;flex-wrap:wrap;gap:4px 14px;border-bottom:1px solid var(--line);padding-bottom:18px;margin-bottom:10px}
+    nav.toc .toc-title{width:100%}
+    nav.toc a{border-left:none;padding:2px 0}
+    .beyondgrid{grid-template-columns:1fr}
+    .elem{width:38px;height:38px}
+  }
+  @media (prefers-reduced-motion:reduce){
+    html{scroll-behavior:auto}
+    .morsestrip{transition:none}
+    .codeout{transition:none}
+    .elem:hover{transform:none}
+  }
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="eyebrow">An interactive reading · presented at the A.I.E.E. Winter Convention, February 1928</div>
+  <h1>Certain Topics in Telegraph Transmission Theory</h1>
+  <div class="byline">by <b>Harry Nyquist</b> · American Telephone and Telegraph Co. · <i>Transactions of the A.I.E.E.</i>, pp. 617–644 — annotated &amp; explained, with live demos</div>
+  <div class="morsestrip" id="heroMorse"><small>The paper's title, keyed in International Morse — encoded live in your browser</small><span></span></div>
+  <p class="abstract">“The minimum band width required for unambiguous interpretation is substantially equal,
+  numerically, to the speed of signaling and is substantially independent of the number of current values
+  employed.” — the Synopsis. Twenty years before Shannon, this sentence set the speed limit of the wire.</p>
+</header>
+
+<div class="wrap">
+<nav class="toc" aria-label="Sections">
+  <div class="toc-title">Contents</div>
+  <a href="#s1">01 · Scope</a>
+  <a href="#s2">02 · Preliminary Discussion</a>
+  <a href="#s3">03 · Speed ∝ Bandwidth</a>
+  <a href="#s4">04 · Analysis of D-C Wave</a>
+  <a href="#s5">05 · Distortionless Transmission</a>
+  <a href="#s6">06 · Analysis of Carrier Wave</a>
+  <a href="#s7">07 · Generalized Wave Form</a>
+  <a href="#s8">08 · Dual Aspect of the Wave</a>
+  <a href="#s9">09 · Interference</a>
+  <a href="#s10">10 · The Argument, Assembled</a>
+  <a href="#beyond" class="extra">＋ Beyond the Paper</a>
+</nav>
+
+<main>
+
+<!-- ============================================================ 1 -->
+<section class="paper-sec" id="s1">
+  <div class="eyebrow"><span class="no">§ 01</span> · The promise</div>
+  <h2>Scope</h2>
+  <p class="nyquist-says">“The required frequency band is directly proportional to the signaling speed.”</p>
+  <p><b>What this paper is:</b> in 1928 telegraph engineering was a craft. Engineers knew, roughly, that
+  faster signaling needed "better" lines, but each system — land line, submarine cable, carrier telegraph —
+  had its own folklore. Nyquist opens by promising something different: a <em>theory</em>, with an actual
+  limit in it. He lists eleven results up front, and three of them are the ones history kept:</p>
+  <p>First, the frequency band a telegraph needs grows in direct proportion to how fast you signal —
+  double the speed, double the band. Second, when you decompose a telegraph signal into sinusoidal
+  components, the frequency axis splits into bands each as wide as the signaling speed, and every band
+  carries <em>the same information</em> — they are, in his word, <b>mutually redundant</b>. Third, and the
+  punchline: the minimum band you must transmit equals the signaling speed, <em>no matter how many
+  distinct current levels you use</em>.</p>
+  <p>He is careful to frame this as a theoretical ceiling: “a theoretical limit which cannot be attained in
+  practice but which can be approached.” That framing — an ideal limit that real equipment approaches as
+  engineering improves — is exactly the intellectual move Shannon would repeat for noise in 1948.</p>
+  <div class="keyidea"><b>Key idea:</b> this paper replaces "how good is my telegraph?" with "how close is my
+  telegraph to the <em>best possible</em> telegraph?" — and then computes what best-possible means.</div>
+</section>
+
+<!-- ============================================================ 2 -->
+<section class="paper-sec" id="s2">
+  <div class="eyebrow"><span class="no">§ 02</span> · What a signal is</div>
+  <h2>Preliminary Discussion</h2>
+  <p class="nyquist-says">“The time is divided into approximately equal units which will be called time units…
+  There is a finite number of conditions, and each time unit is characterized by a single one of these conditions.”</p>
+  <p>Before any mathematics, Nyquist does something quietly profound: he defines what makes telegraphy
+  <em>telegraphy</em>. Two properties, he says, distinguish it from telephony: time comes in discrete equal
+  units, and in each unit the sender chooses one of a <b>finite set of conditions</b> — key closed or open,
+  positive or negative battery, or (in submarine cables) positive, zero, negative. This is the first clean
+  definition of what we now call <b>digital communication</b>: discrete time, discrete alphabet. Speech has
+  neither; Morse over a wire has both.</p>
+  <p>He then factors every signal into two independent pieces. The contribution of the <i>h</i>-th time unit
+  to the wire's voltage is written as a product <code>a_h · f(t)</code>:</p>
+  <ul>
+    <li>the <b>magnitude factor</b> <code>a_h</code> — the number the sender chose (+1, 0, −1, …). This is the
+    intelligence. It "is the same in all parts of the system and, in fact, in all systems transmitting the
+    same signals."</li>
+    <li>the <b>wave form</b> <code>f(t)</code> — the physical pulse shape that carries it. This is determined by
+    the equipment and the line, and "is not affected by the particular signal or form of intelligence being
+    transmitted."</li>
+  </ul>
+  <p>Content and carrier, cleanly separated — the same separation every modem datasheet still makes between
+  "constellation" and "pulse shaping." He also defines <b>speed of signaling</b> <i>s</i>, in dots per second:
+  the number of signal elements per second divided by two (a Morse "dot cycle" is one mark plus one space —
+  two elements). And he restricts the whole theory to <b>linear</b> systems, pointedly excluding the ordinary
+  clacking telegraph relay, which slams against mechanical stops.</p>
+  <div class="keyidea"><b>Key idea:</b> a signal = a list of numbers (<code>a_h</code>) × a reusable pulse
+  (<code>f(t)</code>). Everything the paper proves works on the numbers, no matter what they encode.</div>
+</section>
+
+<!-- ============================================================ 3 -->
+<section class="paper-sec" id="s3">
+  <div class="eyebrow"><span class="no">§ 03</span> · The scaling law</div>
+  <h2>Proportionality Between Speed of Signaling and Transmitted Frequency Band</h2>
+  <p class="nyquist-says">“…for any given deformation of the received signal the transmitted frequency range must
+  be increased in direct proportion to the signaling speed, and the effect of the system at any corresponding
+  frequencies must be the same.”</p>
+  <p>The argument here is a beautiful two-paragraph scaling trick, no calculus required. Take any repeating
+  telegraph signal and resolve it into its sinusoidal components (a Fourier series — components at the
+  repetition frequency, twice it, three times it, …). Now imagine a second telegraph sending the <em>same</em>
+  message but with every time unit half as long: everything happens twice as fast. Its Fourier decomposition
+  is <em>term-for-term identical</em> — except every component sits at exactly twice the frequency.</p>
+  <p>So if the second system passes frequencies up to twice the first system's cutoff, and treats each
+  doubled frequency the way the first treated the original, the received wave is an exact time-compressed
+  replica: same shape, same deformation, half the time. Nothing about quality changed; only the band
+  stretched in proportion to the speed.</p>
+  <p>Real systems in 1928 showed wildly different bandwidth-per-speed ratios, and Nyquist says why: they
+  waste their bands to different degrees. Which raises the question the rest of the paper answers —
+  “What is the limiting value for this factor under ideal conditions?”</p>
+  <div class="keyidea"><b>Key idea:</b> bandwidth and signaling speed are the same currency at different
+  denominations. The interesting question is not the exchange rate's existence but its <em>best possible
+  value</em>.</div>
+</section>
+
+<!-- ============================================================ 4 -->
+<section class="paper-sec" id="s4">
+  <div class="eyebrow"><span class="no">§ 04</span> · Redundant bands</div>
+  <h2>Analysis of D-C. Wave</h2>
+  <p class="nyquist-says">“Each such band contains all the information about the signal that the totality of bands
+  from zero to infinity contains. One such band (or its equivalent) is necessary and sufficient to determine the
+  original signal.”</p>
+  <p>Now the real analysis. Take <i>N</i> signal elements with magnitude factors <code>a_1 … a_N</code>,
+  sent as rectangular pulses and repeated forever. The Fourier series of this wave has infinitely many
+  components — but Nyquist shows (Appendix I) that every component factors into two parts:</p>
+  <ul>
+    <li>a <b>shape factor</b> <code>F(f)</code> — depends only on the pulse shape (rectangular here), not the message;</li>
+    <li>a <b>discrimination factor</b> <code>C(f) + iS(f)</code> — depends only on the message
+    (<code>a_h</code>'s), not the pulse. It "determines that intelligence completely."</li>
+  </ul>
+  <p>Then comes the counting argument that anticipates the sampling theorem. The message is <i>N</i> numbers.
+  Each sinusoidal component gives you two measured numbers (amplitude and phase). So about <b>N/2 components
+  should suffice</b> to solve for all N magnitude factors — and the discrimination factor obliges: it is
+  periodic and mirror-symmetric, so its values in <em>any one band of width equal to the signaling speed</em>
+  determine its values everywhere else. All other bands are copies. His Fig. 1 plots this for a 10-element
+  test signal (1, 0, 1, 0, 0, 1, 0, 0, 0, 0) — the demo below recreates it live, for any signal you draw.</p>
+
+  <figure class="demo">
+    <span class="demo-tag">Interactive</span>
+    <h4>The discrimination factor &amp; its redundant bands — Nyquist's Fig. 1, live</h4>
+    <p class="hint">Click the cells to change each signal element's magnitude factor (cycles +1 → 0 → −1,
+    three conditions, like a submarine cable). The chart plots the discrimination factor C (real part, top)
+    and S (imaginary part, bottom) for components 0–20. Matching colors mark points that carry identical
+    information — every band of width s is a mirror or copy of the first.</p>
+    <div class="elemnote">10 signal elements · click to edit · <button class="secondary" id="specFig1" style="padding:3px 10px;font-size:11px">reset to Nyquist's Fig. 1 signal</button></div>
+    <div class="elemrow" id="specElems" role="group" aria-label="Signal element magnitude factors"></div>
+    <svg id="specSvg" viewBox="0 0 720 320" role="img" aria-label="Bar chart of discrimination factor C and S across four frequency bands, showing mirror symmetry"></svg>
+    <figcaption id="specCaption">bands of width s = N/2 harmonics · same color ⇒ same information</figcaption>
+  </figure>
+
+  <p>Look at what the chart shows regardless of the message you draw: band 2 is band 1 reflected, band 3 is
+  band 1 negated, band 4 reflected-and-negated. Transmitting anything beyond the first band is sending the
+  same letter twice. Hence the conclusion at the head of this section — and one more subtlety Nyquist flags:
+  the constant (d-c.) component carries no intelligence either, so no line capacity need be spent on it.</p>
+  <div class="keyidea"><b>Key idea:</b> N numbers need only N/2 sinusoids ⇒ a band numerically equal to the
+  signaling speed is <em>necessary and sufficient</em>. In modern language: 2W independent symbols per second
+  through bandwidth W — the Nyquist rate.</div>
+</section>
+
+<!-- ============================================================ 5 -->
+<section class="paper-sec" id="s5">
+  <div class="eyebrow"><span class="no">§ 05</span> · The criterion</div>
+  <h2>Distortionless Transmission</h2>
+  <p class="nyquist-says">“For convenience the term nondistorting wave will be introduced and will be defined as a
+  wave which produces perfect signals. A nondistorting wave may or may not be deformed.”</p>
+  <p>That second sentence is the paper's philosophical hinge. With a finite band, the received wave
+  <em>will</em> be bent out of shape — the crisp rectangles arrive as rounded slopes. Nyquist's move is to
+  stop caring. If the receiver only reads the wave <b>at the mid-instant of each time unit</b>, then only the
+  mid-instant values matter; the wave is free to wobble however it likes in between. "Perfect" now means:
+  value at each sampling instant proportional to the magnitude factor sent. Deformed, yet nondistorting.</p>
+  <p>Given that criterion, he computes (Appendix II-A) exactly which received-wave shape factors achieve it
+  within the minimum band — and finds an entire family: the flat brick-wall spectrum, plus <em>anything</em>
+  obtained by adding a component that is odd-symmetric about the signaling-speed frequency. Every member of
+  the family produces a pulse that passes through zero at every other sampling instant, so neighboring
+  symbols never speak over each other. This is the <b>Nyquist criterion for zero intersymbol
+  interference</b> — the design rule inside every modem, DSL line, and Ethernet PHY built since.</p>
+
+  <figure class="demo">
+    <span class="demo-tag">Interactive</span>
+    <h4>Throttle the bandwidth — watch the mid-instants survive, then fail</h4>
+    <p class="hint">Twelve two-condition signal elements (click to flip ±1) are sent through an ideal band of
+    width W. Squares mark what was sent; dots mark what the receiver reads at each mid-instant. Drag the
+    slider: above W = s nothing improves — below it, the samples drift and symbols corrupt each other.</p>
+    <div class="elemrow" id="bwElems" role="group" aria-label="Two-condition signal elements"></div>
+    <div class="ctrlrow">
+      <label>bandwidth W / signaling speed s
+        <input type="range" id="bwSlider" min="40" max="200" value="100" step="5" aria-label="Bandwidth as a fraction of signaling speed">
+        <output id="bwVal">1.00 × s</output>
+      </label>
+    </div>
+    <svg id="bwSvg" viewBox="0 0 720 260" role="img" aria-label="Received waveform with sampling instants, showing intersymbol interference when bandwidth is below the signaling speed"></svg>
+    <div class="readout" id="bwReadout"></div>
+  </figure>
+
+  <p>He also works the criterion the other way: given the ideal received shape factor and the known
+  rectangular sent wave, the required <b>transfer admittance</b> of the circuit is just their ratio,
+  times a pure delay (a phase lag proportional to frequency shifts the wave in time without bending it).
+  Build equalizers to give the line that characteristic and the ideal is realized. And because receivers
+  differ, he shows the method generalizes: land-line telegraphs that read zero-crossing <em>instants</em>
+  rather than mid-values, picture receivers that integrate exposure over the unit — each criterion yields
+  its own family of ideal shape factors by the same computation.</p>
+
+  <figure class="demo">
+    <span class="demo-tag">Interactive</span>
+    <h4>The family of ideal pulses — symmetry buys physical realizability</h4>
+    <p class="hint">The flat minimum-band spectrum gives the famous sin(x)/x pulse — perfect but with slow,
+    infinite tails. Adding an odd-symmetric roll-off about f = s (Nyquist's curve d in his Fig. 2) keeps every
+    zero crossing exactly on the sampling instants while taming the tails. Drag β.</p>
+    <div class="ctrlrow">
+      <label>roll-off β (0 = brick wall)
+        <input type="range" id="rcSlider" min="0" max="100" value="0" step="5" aria-label="Roll-off factor beta">
+        <output id="rcVal">β = 0.00</output>
+      </label>
+    </div>
+    <svg id="rcSvg" viewBox="0 0 720 330" role="img" aria-label="Received-wave shape factor with symmetric roll-off, and the corresponding pulse with zeros at all sampling instants"></svg>
+    <div class="readout" id="rcReadout"></div>
+  </figure>
+
+  <div class="keyidea"><b>Key idea:</b> don't demand an undeformed wave — demand the right values at the
+  right instants. That single relaxation makes minimum-bandwidth transmission possible and leaves infinite
+  design freedom (the shape-factor family) to make it practical.</div>
+</section>
+
+<!-- ============================================================ 6 -->
+<section class="paper-sec" id="s6">
+  <div class="eyebrow"><span class="no">§ 06</span> · Carrier waves</div>
+  <h2>Analysis of Carrier Wave</h2>
+  <p class="nyquist-says">“On account of the mutual redundancy of the two sidebands, the total frequency range
+  required in the symmetrical carrier case … for a given speed of signaling is just twice that required in the
+  direct-current case.”</p>
+  <p>Carrier telegraphy — keying a tone instead of a battery, so many telegraph channels can share one wire
+  at different pitches — was the hot technology of the 1920s. Nyquist redoes his analysis for it and finds
+  an embarrassment: modulating a carrier splits the message into two <b>sidebands</b>, mirror images above and
+  below the carrier frequency. Mirror images: the redundancy of §04, reborn. A symmetrical carrier channel
+  spends twice the spectrum of a d-c. channel to say the same thing.</p>
+  <p>He then examines the two escapes, both of which became industry standards:</p>
+  <ul>
+    <li><b>Phase discrimination:</b> send <em>two independent signals</em> in the same band, one on a cosine
+    carrier, one on a sine carrier. A product detector (his example: a dynamometer, one fixed and one moving
+    coil) multiplied by the right reference responds to one signal and averages the other to exactly zero.
+    Two messages, one band — full efficiency recovered. Today this is quadrature modulation, the "Q" in QAM.</li>
+    <li><b>Single sideband:</b> transmit only one sideband. But he warns, from hard experience, that naively
+    sliding the carrier toward the band edge <em>slows the system down</em>: the received wave decomposes into
+    a fast in-phase part (the one you want), a sluggish in-phase part, and a quadrature part that builds up to
+    roughly the derivative of the envelope. SSB works only with sharp filtering, phase correction at the band
+    edges, and quadrature rejection — a checklist that telephone-multiplex engineers then spent a decade
+    executing.</li>
+  </ul>
+
+  <figure class="demo">
+    <span class="demo-tag">Interactive</span>
+    <h4>Sidebands: where the band budget goes</h4>
+    <p class="hint">A baseband message of width s (gray) is modulated up. Slide the carrier; switch schemes to
+    see the occupied spectrum and its efficiency.</p>
+    <div class="ctrlrow">
+      <label>carrier frequency
+        <input type="range" id="carSlider" min="25" max="70" value="45" step="1" aria-label="Carrier frequency">
+        <output id="carVal"></output>
+      </label>
+      <label>scheme
+        <select id="carScheme" aria-label="Modulation scheme">
+          <option value="dsb">double sideband</option>
+          <option value="ssb">single sideband</option>
+          <option value="pd">phase discrimination (2 signals)</option>
+        </select>
+      </label>
+    </div>
+    <svg id="carSvg" viewBox="0 0 720 210" role="img" aria-label="Spectrum diagram showing baseband message and its sidebands around a movable carrier frequency"></svg>
+    <div class="readout" id="carReadout"></div>
+  </figure>
+
+  <div class="keyidea"><b>Key idea:</b> modulation doesn't create information, it relocates it — and done
+  carelessly, duplicates it. The two sidebands are the frequency-domain shadow of §04's redundant bands, and
+  the cures (quadrature signaling, SSB) are now in every radio and modem standard.</div>
+</section>
+
+<!-- ============================================================ 7 -->
+<section class="paper-sec" id="s7">
+  <div class="eyebrow"><span class="no">§ 07</span> · Any pulse at all</div>
+  <h2>Generalized Wave Form</h2>
+  <p class="nyquist-says">“…the desired received current can be obtained in part by circuit design and in part by
+  signal shaping at the transmitting end.”</p>
+  <p>So far the sent pulses were rectangles (d-c.) or keyed sinusoids (carrier). Here Nyquist generalizes to
+  <em>any</em> repeated pulse shape — including pulses that deliberately spill into neighboring time units.
+  The clean factorization survives: sinusoidal components still split into a shape factor (from the pulse)
+  times the <em>same</em> discrimination factor (from the message). The whole §04–§05 theory carries over
+  untouched.</p>
+  <p>The practical payoff is a new degree of freedom. The received spectrum is (sent shape factor) ×
+  (line's transfer admittance). Previously we fixed the sent pulse and bent the <em>line</em> with equalizer
+  networks until the product was ideal. Now we can also bend the <em>sent pulse</em> — pre-distort the
+  transmission so that the line's own imperfections complete it into the ideal. His Appendix VII even works
+  out pre-shaping using stepped rectangular waves, the 1928 ancestor of a DAC-driven transmit filter. His
+  engineering judgment on the trade-off: networks are simpler when moderate accuracy suffices; signal shaping
+  is more accurate but more complicated. (Today's answer: do the shaping in silicon — every transmitter
+  pre-equalizes.)</p>
+  <div class="keyidea"><b>Key idea:</b> the ideal received wave is a <em>product</em> requirement — sent
+  spectrum × channel. You may satisfy it from either factor. Transmit-side pre-emphasis and receive-side
+  equalization are the two halves of one equation.</div>
+</section>
+
+<!-- ============================================================ 8 -->
+<section class="paper-sec" id="s8">
+  <div class="eyebrow"><span class="no">§ 08</span> · Two languages</div>
+  <h2>Dual Aspect of the Signaling Wave</h2>
+  <p class="nyquist-says">“The important fact is that for telegraph purposes the two methods are substantially
+  equivalent in result, though different in processes and labor involved.”</p>
+  <p>A telegraph wave can be described <b>progressively</b> — as a march of signal elements through time — or
+  <b>cyclically</b> — as a stack of sinusoids in frequency. Nyquist lays the two vocabularies side by side,
+  a Rosetta stone for the working engineer:</p>
+  <ul>
+    <li>signal element ↔ sinusoidal component</li>
+    <li>magnitude factor <code>a_h</code> ↔ discrimination factor <code>C, S</code> (the intelligence)</li>
+    <li>wave form <code>f(t)</code> ↔ shape factor <code>F(f)</code> (the pulse)</li>
+    <li>indicial admittance <code>A(t)</code> (step response) ↔ transfer admittance <code>Y(f)</code> (the circuit)</li>
+  </ul>
+  <p>— with the integral formulas to convert each pair (what we now call Fourier transform pairs). The two
+  descriptions are logically equivalent, but not <em>computationally</em> equivalent: cascading circuits in
+  the frequency domain is multiplication (addition, on a log scale), while the time domain demands
+  differentiating, multiplying, and integrating measured curves — graphical operations that 1928 could not do
+  precisely. Hence his verdict, and the whole paper's method: work in frequency. He closes the section noting
+  the Fourier <em>integral</em> yields the same results as his Fourier <em>series</em>, "if care is taken"
+  (Appendix IX spells out where care is needed).</p>
+  <div class="keyidea"><b>Key idea:</b> time-domain and frequency-domain views are the same physics in two
+  notations — choose the one in which your problem is multiplication instead of calculus. Two decades later
+  this dual bookkeeping is the standard furniture of signal processing.</div>
+</section>
+
+<!-- ============================================================ 9 -->
+<section class="paper-sec" id="s9">
+  <div class="eyebrow"><span class="no">§ 09</span> · The other limit</div>
+  <h2>Interference</h2>
+  <p class="nyquist-says">“…the number of distinct magnitude factors, hence, the amount of intelligence that can
+  be transmitted over a circuit, are definitely limited by the interference.”</p>
+  <p>Everything so far assumed a clean line. Now the second wall. If interference is unpredictable — as
+  likely positive as negative — a received level can only be read correctly if the interference stays below
+  <b>half the spacing between adjacent current values</b>. Want more levels per element (more intelligence per
+  second in the same band)? The levels crowd together, and the same interference starts flipping symbols.
+  Noise, not bandwidth, caps the alphabet.</p>
+  <p>Put §04 and §09 together and you have, in 1928, both coordinates of channel capacity: bandwidth fixes
+  <em>how many symbols per second</em>; interference fixes <em>how many distinguishable values per
+  symbol</em>. What Nyquist did not have is a statistical theory of the noise itself — that gap is precisely
+  what Shannon filled, turning "definitely limited" into <code>C&nbsp;=&nbsp;W&nbsp;log₂(1+S/N)</code>.</p>
+  <p>Three more results round out the section. He coins the concept — and reports the term — <b>intersymbol
+  interference</b>: the self-inflicted noise of a mistuned system, defined as the gap between the actual wave
+  and the ideal one. He computes the penalty for running a system off its design speed: the interference is
+  proportional to the <em>slope</em> of the transfer admittance, so sharply-filtered (minimum-band) systems
+  are the most brittle — a real engineering trade that still bites. And he identifies the best transmit
+  spectrum for overriding interference on a peak-power-limited line: the flat one, under which <em>every</em>
+  extreme-level signal loads the line equally.</p>
+
+  <figure class="demo">
+    <span class="demo-tag">Interactive</span>
+    <h4>How many current values can the noise tolerate?</h4>
+    <p class="hint">Pick an alphabet size and a noise amplitude, then transmit 20,000 random symbols. Shaded
+    bands show each level's noise spread; when bands touch, the receiver starts misreading. Nyquist's rule:
+    errors begin exactly when noise exceeds half the level spacing.</p>
+    <div class="ctrlrow">
+      <label>current values (levels)
+        <select id="nzLevels" aria-label="Number of signal levels">
+          <option value="2">2 (polar telegraph)</option>
+          <option value="3">3 (submarine cable)</option>
+          <option value="4" selected>4</option>
+          <option value="8">8</option>
+        </select>
+      </label>
+      <label>peak interference amplitude
+        <input type="range" id="nzSlider" min="0" max="120" value="25" step="1" aria-label="Peak interference amplitude">
+        <output id="nzVal"></output>
+      </label>
+      <button id="nzRun">⚡ transmit 20,000 symbols</button>
+    </div>
+    <svg id="nzSvg" viewBox="0 0 720 240" role="img" aria-label="Signal levels with shaded interference bands, showing overlap when noise exceeds half the level spacing"></svg>
+    <div class="readout" id="nzReadout"></div>
+  </figure>
+
+  <div class="keyidea"><b>Key idea:</b> bandwidth limits the symbol rate; interference limits the symbol
+  alphabet. Multiply the two and you are one probability theory short of Shannon's channel capacity.</div>
+</section>
+
+<!-- ============================================================ 10 -->
+<section class="paper-sec" id="s10">
+  <div class="eyebrow"><span class="no">§ 10</span> · Synthesis</div>
+  <h2>The Argument, Assembled</h2>
+  <p class="nyquist-says">“The minimum band width required for unambiguous interpretation is substantially equal,
+  numerically, to the speed of signaling and is substantially independent of the number of current values employed.”</p>
+  <p>Nine appendices of trigonometry back the main text — Appendix I derives the shape/discrimination
+  factorization; II–III derive ideal shape factors for the mid-instant and zero-crossing criteria; IV–V do
+  the carrier and single-sideband analysis; VI–VII generalize the pulse and design pre-shaping; VIII finds
+  the power-optimal flat spectrum; IX reconciles Fourier series with the Fourier integral. But the spine of
+  the argument is short, and worth retracing as one chain:</p>
+  <ul>
+    <li><b>§02</b> defines the object: discrete time units, finite conditions — intelligence as a list of
+    numbers riding a fixed pulse.</li>
+    <li><b>§03</b> shows by pure scaling that band and speed are proportional; only the constant is in question.</li>
+    <li><b>§04</b> computes the constant: the spectrum splits into bands of width s that all say the same
+    thing, so <em>one</em> band — N/2 sinusoids for N symbols — is necessary and sufficient.</li>
+    <li><b>§05</b> makes the limit achievable: judge the wave only at sampling instants, and a whole family of
+    band-limited pulses delivers every symbol untouched by its neighbors.</li>
+    <li><b>§06–§07</b> extend the same theory to carrier systems (exposing the sideband redundancy and its
+    cures) and to arbitrary pulse shapes (splitting the work between transmitter and equalizer).</li>
+    <li><b>§08</b> certifies the frequency-domain method itself — the two aspects of the wave agree, one is
+    just cheaper to compute in.</li>
+    <li><b>§09</b> closes with the other limit: interference bounds the usable alphabet, and with it the
+    intelligence per symbol.</li>
+  </ul>
+  <p>Read as a whole, the paper converts telegraphy from a craft into a pair of budgets — a spectrum budget
+  and a noise budget — and proves exactly what each one buys. Every succeeding theory of communication,
+  Shannon's above all, is an entry in those two ledgers.</p>
+</section>
+
+<!-- ============================================================ code panels intro -->
+<section class="paper-sec" id="s11">
+  <div class="eyebrow"><span class="no">§ ++</span> · Check the math yourself</div>
+  <h2>Run Nyquist's Results</h2>
+  <p>The three panels below are live: the code shown is exactly the code executed when you press
+  <span class="mono">▶ run</span>, against the same functions driving the demos above. Edit nothing, trust
+  nothing — verify.</p>
+
+  <div class="codepanel">
+    <div class="codehead"><span>01 · band redundancy of the discrimination factor — Fig. 1's signal</span>
+      <button class="runbtn" data-code="code1" data-out="out1">▶ run</button></div>
+    <pre class="code" id="code1"><span class="c">// Nyquist's Fig. 1 test signal: 10 elements, magnitude factors:</span>
+const a = [1, 0, 1, 0, 0, 1, 0, 0, 0, 0];
+const N = a.length;                     <span class="c">// band width s = N/2 = 5 harmonics</span>
+
+<span class="c">// Discrimination factor C(n) + iS(n) for harmonic n (Appendix I):</span>
+<span class="c">//   C(n) = Σ a_h cos(πn(2h+1)/N),  S(n) = Σ a_h sin(πn(2h+1)/N)</span>
+<span class="k">for</span> (let n = 0; n &lt;= 5; n++){
+  const b1 = discrimination(a, n);      <span class="c">// band 1: harmonics 0–5</span>
+  const b2 = discrimination(a, N - n);  <span class="c">// band 2: mirror position</span>
+  const b3 = discrimination(a, N + n);  <span class="c">// band 3: shifted by N</span>
+  print('n=' + n + '  C=' + b1.C.toFixed(3).padStart(7) +
+        ' | C(N−n)=' + b2.C.toFixed(3).padStart(7) +
+        ' | C(N+n)=' + b3.C.toFixed(3).padStart(7));
+}
+print('');
+print('C(N−n) = C(n) and C(N+n) = −C(n): every band repeats band 1.');
+print('Transmit harmonics 0–5 (a band of width s) and you have it all.');</pre>
+    <div class="codeout" id="out1"></div>
+  </div>
+
+  <div class="codepanel">
+    <div class="codehead"><span>02 · minimum band: perfect at W = s, broken below it</span>
+      <button class="runbtn" data-code="code2" data-out="out2">▶ run</button></div>
+    <pre class="code" id="code2"><span class="c">// Send 12 random two-condition symbols through an ideal band of width W,</span>
+<span class="c">// then read the wave at each mid-instant (receivedAt sums the shifted pulses).</span>
+const sent = Array.from({length: 12}, () =&gt; Math.random() &lt; 0.5 ? -1 : 1);
+
+<span class="k">function</span> maxSampleError(wOverS){
+  let worst = 0;
+  <span class="k">for</span> (let k = 0; k &lt; sent.length; k++){
+    const r = receivedAt(sent, k + 0.5, wOverS);  <span class="c">// mid-instant of unit k</span>
+    worst = Math.max(worst, Math.abs(r - sent[k]));
+  }
+  <span class="k">return</span> worst;
+}
+
+print('symbols sent: ' + sent.join(' '));
+<span class="k">for</span> (const w of [1.5, 1.0, 0.9, 0.7, 0.5])
+  print('W = ' + w.toFixed(1) + ' × s → worst mid-instant error = ' +
+        maxSampleError(w).toFixed(6) + (maxSampleError(w) &lt; 1e-9 ? '   ✔ perfect' : '   ✘ intersymbol interference'));
+print('');
+print('At and above the signaling speed: exact. Below it: neighbors bleed in.');</pre>
+    <div class="codeout" id="out2"></div>
+  </div>
+
+  <div class="codepanel">
+    <div class="codehead"><span>03 · deformed yet nondistorting: the ideal pulse family</span>
+      <button class="runbtn" data-code="code3" data-out="out3">▶ run</button></div>
+    <pre class="code" id="code3"><span class="c">// Nyquist's §05: a wave may be deformed everywhere EXCEPT the sampling</span>
+<span class="c">// instants. Compare the brick-wall pulse (β=0) with a rolled-off one (β=0.6):</span>
+<span class="c">// between instants they differ — at the instants both are exact.</span>
+<span class="k">for</span> (const beta of [0, 0.6]){
+  print('β = ' + beta + ':');
+  print('  p(0)    = ' + raisedCosine(0, beta).toFixed(6) + '   (the symbol itself)');
+  <span class="k">for</span> (let k = 1; k &lt;= 3; k++)
+    print('  p(' + k + 'Δ)   = ' + raisedCosine(k, beta).toFixed(6) + '   (neighbor instants → zero)');
+  print('  p(0.5Δ) = ' + raisedCosine(0.5, beta).toFixed(6) + '   (between instants → anything goes)');
+}
+print('Both pulses are "nondistorting" — only one of them is undeformed. Neither');
+print('matters: the receiver never looks between the mid-instants.');</pre>
+    <div class="codeout" id="out3"></div>
+  </div>
+</section>
+
+<!-- ============================================================ beyond -->
+<section class="paper-sec" id="beyond">
+  <span class="supp-tag">Supplementary — not in the paper</span>
+  <h2>Beyond the Paper</h2>
+  <p>What happened to these ideas after February 1928 — the century of engineering that grew out of 27 pages
+  of telegraph theory.</p>
+  <div class="beyondgrid">
+    <div class="bcard">
+      <h3><span class="mono">1928 → 1948</span>From "intelligence" to "information"</h3>
+      <p>The same year, Ralph Hartley (Nyquist's Bell Labs colleague) made the alphabet-counting idea
+      quantitative: information = log of the number of distinguishable messages. Claude Shannon fused
+      Nyquist's symbol-rate limit with Hartley's logarithm and a statistical model of noise into
+      <i>A Mathematical Theory of Communication</i> (1948) — whose first page credits exactly this paper.</p>
+    </div>
+    <div class="bcard">
+      <h3><span class="mono">The sampling theorem</span>Nyquist–Shannon, and the Nyquist rate</h3>
+      <p>Nyquist argued N symbols need N/2 sinusoids; Shannon proved the converse direction rigorously in
+      1949 (with independent versions by Whittaker 1915 and Kotelnikov 1933): a signal of bandwidth W is
+      completely determined by 2W samples per second. "Sample above twice the highest frequency" — the
+      Nyquist rate — now governs every ADC, CD player (44.1 kHz for ~20 kHz audio), and digital camera.</p>
+    </div>
+    <div class="bcard">
+      <h3><span class="mono">Zero-ISI pulses</span>§05 became a filter catalog</h3>
+      <p>The "family of ideal shape factors" with odd symmetry about f = s is known today as pulses satisfying
+      the <b>Nyquist ISI criterion</b>; the raised-cosine member (demoed above) and its square-root twin are
+      the default transmit/receive filter pair in telephone modems, DVB satellite TV, and most single-carrier
+      radio standards.</p>
+    </div>
+    <div class="bcard">
+      <h3><span class="mono">Sidebands tamed</span>§06 became QAM and SSB radio</h3>
+      <p>Phase discrimination — two signals on quadrature carriers — is the I/Q modulation inside literally
+      every modern transceiver; with multiple amplitude levels per phase it becomes QAM (Wi-Fi runs up to
+      4096-QAM). Single sideband, with the filtering and phase correction Nyquist prescribed, carried
+      long-distance telephony for half a century and still rules amateur HF radio.</p>
+    </div>
+    <div class="bcard">
+      <h3><span class="mono">The other Nyquist</span>Same man, second landmark</h3>
+      <p>Four years later Nyquist published <i>Regeneration Theory</i> (1932) — the Nyquist stability
+      criterion of control engineering — and in 1928 he also derived Johnson–Nyquist thermal noise. One
+      engineer, three fields, each with his name on its foundational limit. He retired from Bell Labs in
+      1954 holding 138 patents.</p>
+    </div>
+    <div class="bcard">
+      <h3><span class="mono">Scorecard</span>What survived contact with reality</h3>
+      <ul>
+        <li><b>Band ∝ speed, minimum band = s</b> — survived, verbatim; taught in every course. ✔</li>
+        <li><b>Mid-instant sampling &amp; zero-ISI criterion</b> — survived as the ISI criterion; receivers
+        add matched filtering and adaptive equalization Nyquist could only pre-compute. ✔</li>
+        <li><b>Quadrature &amp; SSB efficiency</b> — survived; QAM is the workhorse. ✔</li>
+        <li><b>"Interference limits the levels"</b> — right instinct, pre-statistical; superseded by
+        Shannon capacity, which coding now approaches within fractions of a dB. ◐</li>
+        <li><b>Frequency-domain design over transients</b> — survived so completely we forget it was ever a
+        debate. ✔</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+</main>
+</div>
+
+<footer>
+  <div>Source: H. Nyquist, “Certain Topics in Telegraph Transmission Theory,” <i>Transactions of the A.I.E.E.</i>, vol. 47, pp. 617–644, Feb. 1928 · reprinted in <a href="https://ieeexplore.ieee.org/document/989875">Proceedings of the IEEE, vol. 90, no. 2, 2002</a></div>
+  <div>Every chart, spectrum, pulse and error count on this page is computed live in your browser — nothing is prerendered.</div>
+</footer>
+
+<script>
+/* ============================================================
+   Pure functions (also exercised by the node self-test)
+   ============================================================ */
+
+/* International Morse code — used for the hero strip. */
+const MORSE = {
+  A:'.-',B:'-...',C:'-.-.',D:'-..',E:'.',F:'..-.',G:'--.',H:'....',I:'..',J:'.---',
+  K:'-.-',L:'.-..',M:'--',N:'-.',O:'---',P:'.--.',Q:'--.-',R:'.-.',S:'...',T:'-',
+  U:'..-',V:'...-',W:'.--',X:'-..-',Y:'-.--',Z:'--..'
+};
+
+/* Encode text → array of per-letter Morse strings ('' marks a word gap). */
+function morseEncode(text){
+  return text.toUpperCase().split('').map(ch => ch === ' ' ? '' : (MORSE[ch] || null)).filter(x => x !== null);
+}
+
+/* Total duration in Nyquist "time units" at classic Morse timing:
+   dot=1, dash=3, intra-letter gap=1, letter gap=3, word gap=7. */
+function morseTimeUnits(codes){
+  let units = 0;
+  codes.forEach((code, i) => {
+    if (code === ''){ units += 7; return; }
+    code.split('').forEach((sym, j) => {
+      units += (sym === '-' ? 3 : 1) + (j < code.length - 1 ? 1 : 0);
+    });
+    if (i < codes.length - 1 && codes[i + 1] !== '') units += 3;
+  });
+  return units;
+}
+
+/* Discrimination factor of harmonic n for magnitude factors a[0..N-1]
+   (Appendix I, origin at the center of each time unit):
+   C(n)=Σ a_h cos(πn(2h+1)/N), S(n)=Σ a_h sin(πn(2h+1)/N). */
+function discrimination(a, n){
+  const N = a.length;
+  let C = 0, S = 0;
+  for (let h = 0; h < N; h++){
+    const arg = Math.PI * n * (2*h + 1) / N;
+    C += a[h] * Math.cos(arg);
+    S += a[h] * Math.sin(arg);
+  }
+  return {C, S};
+}
+
+/* Normalized sinc: sin(πx)/(πx), sinc(0)=1. */
+function sincN(x){
+  if (x === 0) return 1;
+  const px = Math.PI * x;
+  return Math.sin(px) / px;
+}
+
+/* Received wave at time t (in time units, Δ=1) for symbols a[], sent through an
+   ideal low-pass band of width W = wOverS × s (s = signaling speed = 1/(2Δ)).
+   The pulse used is the best the band allows: bandwidth min(W, s), i.e. the
+   ideal minimum-band pulse when W ≥ s. Mid-instant of unit h is t = h + 0.5. */
+function receivedAt(a, t, wOverS){
+  const b = Math.min(wOverS, 1);   // extra band beyond s cannot help (§04)
+  let v = 0;
+  for (let h = 0; h < a.length; h++) v += a[h] * sincN(b * (t - (h + 0.5)));
+  return v;
+}
+
+/* Raised-cosine pulse (Nyquist §05 / Appendix II-A family), t in time units:
+   p(t) = sinc(t) · cos(πβt) / (1 − (2βt)²), with the removable singularity
+   at |2βt| = 1 filled by its limit (π/4)·sinc(1/(2β)). p(k)=0 for integer k≠0. */
+function raisedCosine(t, beta){
+  if (beta > 0 && Math.abs(Math.abs(2 * beta * t) - 1) < 1e-9)
+    return (Math.PI / 4) * sincN(1 / (2 * beta));
+  const denom = 1 - Math.pow(2 * beta * t, 2);
+  return sincN(t) * Math.cos(Math.PI * beta * t) / denom;
+}
+
+/* Raised-cosine SPECTRUM (shape factor of the received wave), f in units of s:
+   flat to (1−β), cosine roll-off, zero past (1+β) — odd-symmetric about f=s. */
+function rcSpectrum(f, beta){
+  const af = Math.abs(f);
+  if (beta === 0) return af < 1 ? 1 : (af === 1 ? 0.5 : 0); // paper: "suddenly drops to half that value" at f = s
+  if (af <= 1 - beta) return 1;
+  if (af >= 1 + beta) return 0;
+  return 0.5 * (1 + Math.cos(Math.PI * (af - (1 - beta)) / (2 * beta)));
+}
+
+/* Deterministic PRNG (mulberry32) so the node self-test is reproducible. */
+function mulberry32(seed){
+  let s = seed >>> 0;
+  return function(){
+    s = (s + 0x6D2B79F5) >>> 0;
+    let t = s;
+    t = Math.imul(t ^ (t >>> 15), t | 1);
+    t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
+/* Monte Carlo of §09: L equally spaced levels in [−1,1], uniform interference
+   in [−amp,+amp], receiver picks the nearest level. Returns error fraction.
+   Nyquist's rule: zero errors iff amp < half the level spacing. */
+function symbolErrors(levels, amp, trials, seed){
+  const rng = mulberry32(seed);
+  const spacing = levels > 1 ? 2 / (levels - 1) : 2;
+  let errors = 0;
+  for (let i = 0; i < trials; i++){
+    const sym = Math.floor(rng() * levels);
+    const sent = -1 + sym * spacing;
+    const recv = sent + (rng() * 2 - 1) * amp;
+    let best = Math.round((recv + 1) / spacing);
+    best = Math.max(0, Math.min(levels - 1, best));
+    if (best !== sym) errors++;
+  }
+  return errors / trials;
+}
+
+/* ============================================================
+   UI wiring (browser only)
+   ============================================================ */
+function initUI(){
+  const $ = s => document.querySelector(s);
+  const $$ = s => [...document.querySelectorAll(s)];
+  const SVGNS = 'http://www.w3.org/2000/svg';
+  function el(tag, attrs, text){
+    const e = document.createElementNS(SVGNS, tag);
+    for (const k in attrs) e.setAttribute(k, attrs[k]);
+    if (text !== undefined) e.textContent = text;
+    return e;
+  }
+  const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  /* ---------- hero morse strip ---------- */
+  const TITLE = 'CERTAIN TOPICS IN TELEGRAPH TRANSMISSION THEORY';
+  const codes = morseEncode(TITLE);
+  const glyphs = codes.map(c => c === '' ? ' · ' :
+    c.split('').map(s => s === '-' ? '▄▄▄' : '▄').join(' ')).join('  ');
+  const strip = $('#heroMorse');
+  strip.querySelector('span').textContent = glyphs + '   — ' + morseTimeUnits(codes) + ' time units at classic Morse timing';
+  requestAnimationFrame(() => strip.classList.add('show'));
+
+  /* ---------- TOC highlight ---------- */
+  const tocLinks = $$('nav.toc a');
+  const byId = {}; tocLinks.forEach(a => byId[a.getAttribute('href').slice(1)] = a);
+  const obs = new IntersectionObserver(es => {
+    es.forEach(e => { if (e.isIntersecting){
+      tocLinks.forEach(a => a.classList.remove('active'));
+      (byId[e.target.id] || {}).classList?.add('active');
+    }});
+  }, {rootMargin:'-15% 0px -70% 0px'});
+  $$('.paper-sec').forEach(s => obs.observe(s));
+
+  /* ---------- element-cell helper (click to cycle values) ---------- */
+  function makeElemRow(container, values, cycle, onChange){
+    container.innerHTML = '';
+    values.forEach((v, i) => {
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'elem' + (v > 0 ? ' pos' : v < 0 ? ' neg' : '');
+      b.textContent = v > 0 ? '+1' : v < 0 ? '−1' : '0';
+      b.setAttribute('aria-label', 'signal element ' + (i+1) + ', value ' + v + ', click to change');
+      b.addEventListener('click', () => {
+        values[i] = cycle[(cycle.indexOf(values[i]) + 1) % cycle.length];
+        makeElemRow(container, values, cycle, onChange);
+        onChange();
+      });
+      container.appendChild(b);
+    });
+  }
+
+  /* ============ §04: discrimination-factor spectrum lab ============ */
+  const FIG1 = [1, 0, 1, 0, 0, 1, 0, 0, 0, 0];
+  let specA = FIG1.slice();
+  const classColors = ['#8A3E08','#B4530A','#2E5E85','#5B8AB0','#7A5C3E','#3E7A6B'];
+
+  function specRender(){
+    const svg = $('#specSvg');
+    svg.innerHTML = '';
+    const N = specA.length, nMax = 2 * N;   // four bands of width N/2
+    const L = 46, R = 706, W = R - L;
+    const rows = [{key:'C', y0: 88, label:'C(n) — real part'},
+                  {key:'S', y0: 232, label:'S(n) — imaginary part'}];
+    const vals = [];
+    let maxAbs = 1e-9;
+    for (let n = 0; n <= nMax; n++){
+      const d = discrimination(specA, n);
+      vals.push(d);
+      maxAbs = Math.max(maxAbs, Math.abs(d.C), Math.abs(d.S));
+    }
+    const amp = 52, xOf = n => L + W * n / nMax;
+    // band separators + labels
+    for (let b = 0; b <= 4; b++){
+      const x = L + W * b / 4;
+      svg.appendChild(el('line', {x1:x, y1:18, x2:x, y2:300, stroke:'#E0DDD3', 'stroke-width':1, 'stroke-dasharray': b % 1 ? '' : '4 4'}));
+      if (b < 4) svg.appendChild(el('text', {x: L + W*(b+0.5)/4, y: 305, 'text-anchor':'middle', 'font-size':11,
+        fill: b === 0 ? '#8A3E08' : '#5D6870', 'font-family':'ui-monospace,Consolas,monospace',
+        'font-weight': b === 0 ? '700' : '400'}, 'band ' + (b+1) + (b === 0 ? '  (0…s)' : '')));
+    }
+    rows.forEach(row => {
+      svg.appendChild(el('line', {x1:L, y1:row.y0, x2:R, y2:row.y0, stroke:'#9AA3A9', 'stroke-width':1}));
+      svg.appendChild(el('text', {x:L, y:row.y0 - amp - 8, 'font-size':11.5, fill:'#5D6870',
+        'font-family':'ui-monospace,Consolas,monospace'}, row.label));
+      for (let n = 0; n <= nMax; n++){
+        const v = vals[n][row.key] / maxAbs * amp;
+        const m = n % N, cls = Math.min(m, N - m);
+        const color = classColors[cls % classColors.length];
+        const x = xOf(n);
+        svg.appendChild(el('line', {x1:x, y1:row.y0, x2:x, y2:row.y0 - v, stroke:color, 'stroke-width':3.4, 'stroke-linecap':'round'}));
+        svg.appendChild(el('circle', {cx:x, cy:row.y0 - v, r:3.6, fill:color}));
+      }
+    });
+    $('#specCaption').textContent =
+      'N = ' + N + ' elements · band width s = ' + (N/2) + ' harmonics · same color ⇒ same information (mirrored or negated copies)';
+  }
+  makeElemRow($('#specElems'), specA, [1, 0, -1], specRender);
+  $('#specFig1').addEventListener('click', () => {
+    specA.length = 0; FIG1.forEach(v => specA.push(v));
+    makeElemRow($('#specElems'), specA, [1, 0, -1], specRender);
+    specRender();
+  });
+  specRender();
+
+  /* ============ §05a: bandwidth throttle ============ */
+  let bwA = [1,-1,1,1,-1,1,-1,-1,1,-1,1,1];
+  function bwRender(){
+    const svg = $('#bwSvg');
+    svg.innerHTML = '';
+    const w = +$('#bwSlider').value / 100;
+    $('#bwVal').textContent = w.toFixed(2) + ' × s';
+    const M = bwA.length;
+    const L = 40, R = 706, W = R - L, yMid = 120, amp = 62;
+    const xOf = t => L + W * t / M, yOf = v => yMid - v * amp;
+    svg.appendChild(el('line', {x1:L, y1:yMid, x2:R, y2:yMid, stroke:'#9AA3A9', 'stroke-width':1}));
+    // time-unit gridlines
+    for (let k = 0; k <= M; k++)
+      svg.appendChild(el('line', {x1:xOf(k), y1:30, x2:xOf(k), y2:214, stroke:'#EAE7DE', 'stroke-width':1}));
+    // waveform
+    let dPath = '';
+    for (let t = 0; t <= M; t += 0.04){
+      const v = receivedAt(bwA, t, w);
+      dPath += (dPath ? 'L' : 'M') + xOf(t).toFixed(1) + ',' + yOf(v).toFixed(1);
+    }
+    svg.appendChild(el('path', {d:dPath, fill:'none', stroke:'#B4530A', 'stroke-width':2}));
+    // sent squares + received dots
+    let worst = 0;
+    for (let k = 0; k < M; k++){
+      const tm = k + 0.5;
+      const r = receivedAt(bwA, tm, w);
+      const err = Math.abs(r - bwA[k]);
+      worst = Math.max(worst, err);
+      svg.appendChild(el('rect', {x:xOf(tm)-5, y:yOf(bwA[k])-5, width:10, height:10,
+        fill:'none', stroke:'#2E5E85', 'stroke-width':1.8}));
+      svg.appendChild(el('circle', {cx:xOf(tm), cy:yOf(r), r:4.4,
+        fill: err > 0.25 ? '#BF3B2B' : '#2E5E85'}));
+    }
+    svg.appendChild(el('text', {x:L, y:20, 'font-size':11.5, fill:'#5D6870',
+      'font-family':'ui-monospace,Consolas,monospace'}, '□ sent value at mid-instant   ● received value' ));
+    const ok = worst < 1e-6;
+    $('#bwReadout').innerHTML = 'worst mid-instant error: <b>' + worst.toFixed(4) + '</b> — ' +
+      (ok ? '<span class="ok">✔ perfect: every symbol lands exactly (W ≥ s)</span>'
+          : (worst > 0.25 ? '<span class="bad">✘ severe intersymbol interference (W &lt; s)</span>'
+                          : '<span class="bad">✘ samples drifting — the band is too narrow</span>'));
+  }
+  makeElemRow($('#bwElems'), bwA, [1, -1], bwRender);
+  $('#bwSlider').addEventListener('input', bwRender);
+  bwRender();
+
+  /* ============ §05b: raised-cosine pulse explorer ============ */
+  function rcRender(){
+    const svg = $('#rcSvg');
+    svg.innerHTML = '';
+    const beta = +$('#rcSlider').value / 100;
+    $('#rcVal').textContent = 'β = ' + beta.toFixed(2);
+    // --- top: spectrum, f from 0 to 2s ---
+    const L = 46, R = 706, W = R - L;
+    const sy0 = 118, sAmp = 78;
+    svg.appendChild(el('text', {x:L, y:18, 'font-size':11.5, fill:'#5D6870',
+      'font-family':'ui-monospace,Consolas,monospace'}, 'shape factor of the received wave  F(f)'));
+    svg.appendChild(el('line', {x1:L, y1:sy0, x2:R, y2:sy0, stroke:'#9AA3A9', 'stroke-width':1}));
+    const fx = f => L + W * f / 2;
+    // brick wall reference
+    svg.appendChild(el('path', {d:'M'+fx(0)+','+(sy0-sAmp)+'L'+fx(1)+','+(sy0-sAmp)+'L'+fx(1)+','+sy0,
+      fill:'none', stroke:'#C9CFCB', 'stroke-width':1.4, 'stroke-dasharray':'5 4'}));
+    let sp = '';
+    for (let f = 0; f <= 2; f += 0.01)
+      sp += (sp ? 'L' : 'M') + fx(f).toFixed(1) + ',' + (sy0 - rcSpectrum(f, beta) * sAmp).toFixed(1);
+    svg.appendChild(el('path', {d:sp, fill:'none', stroke:'#B4530A', 'stroke-width':2.2}));
+    svg.appendChild(el('line', {x1:fx(1), y1:sy0-sAmp-8, x2:fx(1), y2:sy0+4, stroke:'#2E5E85', 'stroke-width':1, 'stroke-dasharray':'3 3'}));
+    svg.appendChild(el('text', {x:fx(1), y:sy0+16, 'text-anchor':'middle', 'font-size':11, fill:'#2E5E85',
+      'font-family':'ui-monospace,Consolas,monospace'}, 'f = s'));
+    svg.appendChild(el('circle', {cx:fx(1), cy:sy0 - rcSpectrum(1, beta)*sAmp, r:3.5, fill:'#2E5E85'}));
+    // --- bottom: pulse, t from −4Δ to 4Δ ---
+    const py0 = 258, pAmp = 62;
+    svg.appendChild(el('text', {x:L, y:162, 'font-size':11.5, fill:'#5D6870',
+      'font-family':'ui-monospace,Consolas,monospace'}, 'corresponding pulse p(t) — zeros pinned to the sampling instants'));
+    svg.appendChild(el('line', {x1:L, y1:py0, x2:R, y2:py0, stroke:'#9AA3A9', 'stroke-width':1}));
+    const tx = t => L + W * (t + 4) / 8;
+    let pp = '';
+    for (let t = -4; t <= 4; t += 0.02)
+      pp += (pp ? 'L' : 'M') + tx(t).toFixed(1) + ',' + (py0 - raisedCosine(t, beta) * pAmp).toFixed(1);
+    svg.appendChild(el('path', {d:pp, fill:'none', stroke:'#B4530A', 'stroke-width':2.2}));
+    for (let k = -4; k <= 4; k++){
+      const v = raisedCosine(k, beta);
+      svg.appendChild(el('circle', {cx:tx(k), cy:py0 - v * pAmp, r:4,
+        fill: k === 0 ? '#B4530A' : '#2E5E85'}));
+      svg.appendChild(el('text', {x:tx(k), y:py0+18, 'text-anchor':'middle', 'font-size':10.5, fill:'#5D6870',
+        'font-family':'ui-monospace,Consolas,monospace'}, k === 0 ? '0' : k + 'Δ'));
+    }
+    // tail energy readout
+    let tail = 0;
+    for (let t = 1; t <= 6; t += 0.05) tail = Math.max(tail, Math.abs(raisedCosine(t + 0.5, beta)));
+    $('#rcReadout').innerHTML = 'occupied band: <b>' + (1 + beta).toFixed(2) + ' × s</b> · worst tail excursion between instants: <b>' +
+      tail.toFixed(3) + '</b> · zeros at every kΔ: <span class="ok">preserved for every β</span>' +
+      (beta === 0 ? ' — the minimum-band brick wall (slow 1/t tails)' : ' — spectrum still odd-symmetric about f = s, so the criterion holds');
+  }
+  $('#rcSlider').addEventListener('input', rcRender);
+  rcRender();
+
+  /* ============ §06: carrier spectrum ============ */
+  function carRender(){
+    const svg = $('#carSvg');
+    svg.innerHTML = '';
+    const fc = +$('#carSlider').value;         // in chart units, s = 14 units
+    const scheme = $('#carScheme').value;
+    const s = 14;
+    $('#carVal').textContent = 'f_c = ' + (fc / s).toFixed(1) + ' × s';
+    const L = 40, R = 706, W = R - L, base = 150, h = 84;
+    const fx = f => L + W * f / 90;
+    svg.appendChild(el('line', {x1:L, y1:base, x2:R, y2:base, stroke:'#9AA3A9', 'stroke-width':1}));
+    // baseband message
+    svg.appendChild(el('path', {d:'M'+fx(0)+','+base+' L'+fx(0)+','+(base-h)+' L'+fx(s)+','+(base-h*0.25)+' L'+fx(s)+','+base+' Z',
+      fill:'#E3E0D7', stroke:'#9AA3A9', 'stroke-width':1}));
+    svg.appendChild(el('text', {x:fx(s/2), y:base+18, 'text-anchor':'middle', 'font-size':11, fill:'#5D6870',
+      'font-family':'ui-monospace,Consolas,monospace'}, 'message (width s)'));
+    // carrier marker
+    svg.appendChild(el('line', {x1:fx(fc), y1:base-h-16, x2:fx(fc), y2:base, stroke:'#23282C', 'stroke-width':1.4, 'stroke-dasharray':'4 3'}));
+    svg.appendChild(el('text', {x:fx(fc), y:base-h-22, 'text-anchor':'middle', 'font-size':11, fill:'#23282C',
+      'font-family':'ui-monospace,Consolas,monospace'}, 'carrier'));
+    function sideband(f0, f1, mirrored, color, opacity){
+      const x0 = fx(f0), x1 = fx(f1);
+      const peakX = mirrored ? x0 : x1, farX = mirrored ? x1 : x0;
+      svg.appendChild(el('path', {d:'M'+farX+','+base+' L'+farX+','+(base-h)+' L'+peakX+','+(base-h*0.25)+' L'+peakX+','+base+' Z',
+        fill:color, 'fill-opacity':opacity, stroke:color, 'stroke-width':1.2}));
+    }
+    let used, note;
+    if (scheme === 'dsb'){
+      sideband(fc - s, fc, true, '#B4530A', 0.35);   // LSB (mirror)
+      sideband(fc, fc + s, false, '#B4530A', 0.6);   // USB
+      svg.appendChild(el('text', {x:fx(fc - s/2), y:base-h-2, 'text-anchor':'middle', 'font-size':10.5, fill:'#8A3E08',
+        'font-family':'ui-monospace,Consolas,monospace'}, 'lower (mirror)'));
+      svg.appendChild(el('text', {x:fx(fc + s/2), y:base-h-2, 'text-anchor':'middle', 'font-size':10.5, fill:'#8A3E08',
+        'font-family':'ui-monospace,Consolas,monospace'}, 'upper'));
+      used = 2; note = 'the two sidebands are mutually redundant — half the band repeats the other half';
+    } else if (scheme === 'ssb'){
+      sideband(fc, fc + s, false, '#2E5E85', 0.55);
+      used = 1; note = 'one sideband suppressed — needs sharp filters, phase correction, quadrature rejection (§06 / Appendix V)';
+    } else {
+      sideband(fc - s, fc, true, '#B4530A', 0.45);
+      sideband(fc, fc + s, false, '#B4530A', 0.45);
+      sideband(fc - s, fc, true, '#2E5E85', 0.3);
+      sideband(fc, fc + s, false, '#2E5E85', 0.3);
+      used = 1; note = 'two independent signals share the band on cos/sin carriers — a product detector separates them exactly';
+    }
+    $('#carReadout').innerHTML = 'band consumed per signal: <b>' + used + ' × s</b> — ' + note +
+      (used === 1 ? ' · <span class="ok">✔ d-c. efficiency restored</span>' : ' · <span class="bad">2× the d-c. telegraph</span>');
+  }
+  $('#carSlider').addEventListener('input', carRender);
+  $('#carScheme').addEventListener('change', carRender);
+  carRender();
+
+  /* ============ §09: interference lab ============ */
+  function nzRender(runMC){
+    const svg = $('#nzSvg');
+    svg.innerHTML = '';
+    const levels = +$('#nzLevels').value;
+    const amp = +$('#nzSlider').value / 100;
+    $('#nzVal').textContent = '± ' + amp.toFixed(2);
+    const spacing = levels > 1 ? 2 / (levels - 1) : 2;
+    const L = 40, R = 664, W = R - L, top = 24, bot = 216, H = bot - top;
+    const yOf = v => bot - (v + 1 + amp + 0.05) / (2 + 2*amp + 0.1) * H;
+    const overlap = amp > spacing / 2 + 1e-12;
+    // shaded bands first, then all level lines, so lines never get painted over
+    for (let i = 0; i < levels; i++){
+      const v = -1 + i * spacing;
+      const yHi = yOf(v + amp), yLo = yOf(v - amp);
+      svg.appendChild(el('rect', {x:L, y:yHi, width:W, height:Math.max(1, yLo - yHi),
+        fill: overlap ? '#FBEAE7' : '#E6EEF4', stroke:'none'}));
+    }
+    for (let i = 0; i < levels; i++){
+      const v = -1 + i * spacing;
+      svg.appendChild(el('line', {x1:L, y1:yOf(v), x2:R, y2:yOf(v), stroke: overlap ? '#BF3B2B' : '#2E5E85', 'stroke-width':2}));
+      svg.appendChild(el('text', {x:R+6, y:yOf(v)+4, 'font-size':10.5, fill:'#5D6870',
+        'font-family':'ui-monospace,Consolas,monospace'}, v.toFixed(2)));
+    }
+    // decision boundaries
+    for (let i = 0; i < levels - 1; i++){
+      const b = -1 + (i + 0.5) * spacing;
+      svg.appendChild(el('line', {x1:L, y1:yOf(b), x2:R, y2:yOf(b), stroke:'#9AA3A9', 'stroke-width':1, 'stroke-dasharray':'2 4'}));
+    }
+    svg.appendChild(el('text', {x:L, y:bot+18, 'font-size':11, fill:'#5D6870',
+      'font-family':'ui-monospace,Consolas,monospace'},
+      'level spacing = ' + spacing.toFixed(3) + ' · Nyquist threshold: interference < half spacing = ' + (spacing/2).toFixed(3)));
+    let mc = '';
+    if (runMC){
+      const rate = symbolErrors(levels, amp, 20000, (Date.now() & 0xffff) | 1);
+      mc = ' · measured error rate over 20,000 symbols: <b>' + (rate * 100).toFixed(2) + '%</b>';
+    }
+    $('#nzReadout').innerHTML = (overlap
+      ? '<span class="bad">✘ noise bands overlap the decision boundaries — symbols will flip</span>'
+      : '<span class="ok">✔ interference below half the spacing — every symbol decodes correctly</span>') + mc;
+  }
+  $('#nzLevels').addEventListener('change', () => nzRender(false));
+  $('#nzSlider').addEventListener('input', () => nzRender(false));
+  $('#nzRun').addEventListener('click', () => nzRender(true));
+  nzRender(false);
+
+  /* ---------- runnable code panels ---------- */
+  $$('.runbtn').forEach(btn => btn.addEventListener('click', () => {
+    const code = document.getElementById(btn.dataset.code).textContent; // spans stripped
+    const out = document.getElementById(btn.dataset.out);
+    out.textContent = ''; out.classList.add('open');
+    const print = s => { out.textContent += '▸ ' + s + '\n'; };
+    try {
+      new Function('print', 'discrimination', 'receivedAt', 'raisedCosine', 'sincN', 'rcSpectrum', code)
+        (print, discrimination, receivedAt, raisedCosine, sincN, rcSpectrum);
+    }
+    catch (err){ out.textContent += '✕ ' + err.message + '\n'; }
+  }));
+}
+
+if (typeof document !== 'undefined') initUI();
+
+if (typeof module !== 'undefined' && module.exports)
+  module.exports = { morseEncode, morseTimeUnits, discrimination, sincN, receivedAt,
+                     raisedCosine, rcSpectrum, mulberry32, symbolErrors, MORSE };
+</script>
+</body>
+</html>
