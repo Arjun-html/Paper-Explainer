@@ -1,0 +1,1185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bitcoin: A Peer-to-Peer Electronic Cash System — An Interactive Reading</title>
+<style>
+  :root{
+    --paper:#F7F7F2;
+    --panel:#FFFFFF;
+    --ink:#1E2A33;
+    --muted:#5C6B72;
+    --line:#DFE3DA;
+    --grid:rgba(30,42,51,.045);
+    --orange:#F7931A;
+    --orange-ink:#B26400;
+    --orange-soft:#FDF1DE;
+    --teal:#0E6E6B;
+    --teal-soft:#E4F0EF;
+    --red:#BF3B2B;
+    --red-soft:#FBEAE7;
+    --code-bg:#152029;
+    --code-ink:#D8E1E8;
+    --code-dim:#7A8B96;
+    --serif:Charter,'Iowan Old Style','Palatino Linotype',Georgia,serif;
+    --mono:ui-monospace,'Cascadia Code',Consolas,'SF Mono',Menlo,monospace;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    margin:0;background:var(--paper);color:var(--ink);
+    font-family:var(--serif);font-size:17px;line-height:1.65;
+  }
+  ::selection{background:var(--orange-soft)}
+  a{color:var(--teal)}
+  code{font-family:var(--mono);font-size:.85em;background:#EEF0E9;padding:1px 5px;border-radius:4px}
+  .mono{font-family:var(--mono)}
+
+  /* ---------- masthead ---------- */
+  header.hero{
+    border-bottom:1px solid var(--line);
+    padding:64px 24px 40px;text-align:center;
+    background:
+      repeating-linear-gradient(0deg,transparent,transparent 23px,var(--grid) 23px,var(--grid) 24px),
+      repeating-linear-gradient(90deg,transparent,transparent 23px,var(--grid) 23px,var(--grid) 24px),
+      var(--paper);
+  }
+  .hero .eyebrow{margin-bottom:18px}
+  .hero h1{
+    font-size:clamp(30px,5vw,46px);line-height:1.15;margin:0 auto 14px;max-width:820px;
+    font-weight:700;letter-spacing:-.01em;
+  }
+  .hero .byline{color:var(--muted);font-size:15px;margin-bottom:26px}
+  .hero .byline b{color:var(--ink)}
+  .hashstrip{
+    font-family:var(--mono);font-size:12px;letter-spacing:.18em;color:var(--orange-ink);
+    word-break:break-all;max-width:680px;margin:0 auto;opacity:0;transition:opacity 1.6s ease;
+  }
+  .hashstrip.show{opacity:.85}
+  .hashstrip small{display:block;letter-spacing:.12em;color:var(--muted);margin-bottom:6px}
+  .hero .abstract{
+    max-width:640px;margin:30px auto 0;font-style:italic;color:var(--muted);
+    border-top:1px solid var(--line);padding-top:22px;font-size:16px;
+  }
+
+  .eyebrow{
+    font-family:var(--mono);font-size:12px;text-transform:uppercase;
+    letter-spacing:.16em;color:var(--muted);
+  }
+  .eyebrow .no{color:var(--orange-ink);font-weight:700}
+
+  /* ---------- layout ---------- */
+  .wrap{
+    display:grid;grid-template-columns:210px minmax(0,760px);
+    gap:64px;justify-content:center;padding:56px 24px 0;
+  }
+  nav.toc{position:sticky;top:24px;align-self:start;font-family:var(--mono);font-size:12.5px}
+  nav.toc .toc-title{letter-spacing:.16em;text-transform:uppercase;color:var(--muted);margin-bottom:14px}
+  nav.toc a{
+    display:block;color:var(--muted);text-decoration:none;padding:4px 0 4px 12px;
+    border-left:2px solid var(--line);line-height:1.4;
+  }
+  nav.toc a:hover{color:var(--ink)}
+  nav.toc a.active{color:var(--orange-ink);border-left-color:var(--orange);font-weight:700}
+  nav.toc a.extra{color:var(--teal)}
+  main{min-width:0}
+
+  section.paper-sec{padding:8px 0 40px;border-bottom:1px solid var(--line);scroll-margin-top:16px}
+  section.paper-sec h2{font-size:27px;margin:10px 0 4px;letter-spacing:-.01em}
+  .satoshi-says{
+    font-style:italic;color:var(--muted);font-size:15.5px;margin:14px 0 18px;
+    padding-left:16px;border-left:3px solid var(--orange);
+  }
+  .keyidea{
+    background:var(--teal-soft);border:1px solid #C9DEDC;border-radius:8px;
+    padding:12px 16px;margin:20px 0;font-size:16px;
+  }
+  .keyidea b{color:var(--teal)}
+
+  /* ---------- demo panels ---------- */
+  .demo{
+    background:
+      repeating-linear-gradient(0deg,transparent,transparent 23px,var(--grid) 23px,var(--grid) 24px),
+      repeating-linear-gradient(90deg,transparent,transparent 23px,var(--grid) 23px,var(--grid) 24px),
+      var(--panel);
+    border:1px solid var(--line);border-radius:10px;padding:20px;margin:26px 0;
+  }
+  .demo-tag{
+    display:inline-block;font-family:var(--mono);font-size:10.5px;font-weight:700;
+    text-transform:uppercase;letter-spacing:.14em;color:#fff;background:var(--orange);
+    padding:3px 9px;border-radius:20px;margin-bottom:12px;
+  }
+  .demo-tag.fig{background:var(--teal)}
+  .demo h4{margin:0 0 6px;font-size:17px}
+  .demo .hint{color:var(--muted);font-size:14px;margin:4px 0 14px}
+  .demo svg{display:block;max-width:100%;height:auto}
+  .demo figcaption{font-size:13.5px;color:var(--muted);font-family:var(--mono);margin-top:10px}
+
+  button{
+    font-family:var(--mono);font-size:13px;font-weight:700;cursor:pointer;
+    border:1px solid var(--ink);background:var(--ink);color:#fff;
+    border-radius:6px;padding:7px 16px;
+  }
+  button:hover{background:#33434e}
+  button.secondary{background:transparent;color:var(--ink)}
+  button.secondary:hover{background:#eceee6}
+  button:disabled{opacity:.5;cursor:wait}
+  button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible{
+    outline:2px solid var(--orange);outline-offset:2px;
+  }
+  input[type=text],select{
+    font-family:var(--mono);font-size:13px;color:var(--ink);
+    border:1px solid var(--line);border-radius:6px;padding:7px 10px;background:#fff;
+  }
+  input[type=range]{accent-color:var(--orange)}
+  label.fld{font-family:var(--mono);font-size:11px;text-transform:uppercase;letter-spacing:.1em;color:var(--muted)}
+
+  /* ---------- tamper chain ---------- */
+  .chainrow{display:flex;gap:0;overflow-x:auto;padding:6px 2px 12px;align-items:stretch}
+  .blockcard{
+    min-width:196px;background:#fff;border:2px solid var(--teal);border-radius:10px;
+    padding:12px 14px;font-family:var(--mono);font-size:12px;flex-shrink:0;
+    transition:border-color .25s,background .25s;
+  }
+  .blockcard.bad{border-color:var(--red);background:var(--red-soft)}
+  .blockcard .bhead{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+  .blockcard .bno{font-weight:700;font-size:13px}
+  .blockcard .bstate{font-size:10px;font-weight:700;letter-spacing:.08em;color:var(--teal)}
+  .blockcard.bad .bstate{color:var(--red)}
+  .blockcard input{width:100%;margin:2px 0 8px;font-size:12px;padding:5px 8px}
+  .blockcard .hrow{color:var(--muted);margin:2px 0;word-break:break-all}
+  .blockcard .hrow b{color:var(--ink);font-weight:400}
+  .blockcard.bad .hrow.hh b{color:var(--red);font-weight:700}
+  .blockcard .remine{margin-top:8px;width:100%;padding:5px 0;font-size:11px}
+  .chainlink{
+    align-self:center;flex-shrink:0;width:34px;text-align:center;
+    color:var(--teal);font-size:20px;font-weight:700;font-family:var(--mono);
+  }
+  .chainlink.bad{color:var(--red)}
+
+  /* ---------- mining demo ---------- */
+  .minegrid{display:flex;flex-wrap:wrap;gap:12px;align-items:flex-end;margin-bottom:14px}
+  .minegrid>div{display:flex;flex-direction:column;gap:4px}
+  #mineData{width:min(340px,100%)}
+  .minestats{display:flex;gap:26px;flex-wrap:wrap;font-family:var(--mono);margin:8px 0 10px}
+  .minestats .st b{display:block;font-size:22px;font-weight:700}
+  .minestats .st span{font-size:11px;text-transform:uppercase;letter-spacing:.1em;color:var(--muted)}
+  .hashout{
+    font-family:var(--mono);font-size:13px;word-break:break-all;background:#fff;
+    border:1px dashed var(--line);border-radius:6px;padding:10px 12px;min-height:40px;
+  }
+  .hashout .z{color:#fff;background:var(--orange);border-radius:3px;padding:0 1px;font-weight:700}
+  .hashout.found{border-color:var(--orange);border-style:solid}
+
+  /* ---------- code panels ---------- */
+  .codepanel{border-radius:10px;overflow:hidden;margin:26px 0;border:1px solid #0d151c}
+  .codehead{
+    display:flex;justify-content:space-between;align-items:center;
+    background:#0D151C;color:var(--code-dim);font-family:var(--mono);
+    font-size:12px;padding:8px 14px;letter-spacing:.06em;
+  }
+  .codehead button{padding:4px 14px;font-size:12px;background:var(--orange);border-color:var(--orange);color:#1a1206}
+  .codehead button:hover{background:#ffa53c}
+  pre.code{
+    margin:0;background:var(--code-bg);color:var(--code-ink);
+    font-family:var(--mono);font-size:13px;line-height:1.6;
+    padding:16px 18px;overflow-x:auto;tab-size:2;
+  }
+  pre.code .c{color:var(--code-dim);font-style:italic}
+  pre.code .k{color:#F7A94C}
+  .codeout{
+    background:#0D151C;color:#9FE8C3;font-family:var(--mono);font-size:12.5px;
+    padding:0 18px;max-height:0;overflow:hidden;transition:max-height .3s ease;
+    white-space:pre-wrap;word-break:break-all;line-height:1.7;
+  }
+  .codeout.open{max-height:340px;padding:12px 18px;border-top:1px solid #22303b;overflow-y:auto}
+
+  /* ---------- merkle ---------- */
+  .mtxrow{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:12px}
+  .mtxrow input{width:100%;font-size:11.5px;padding:6px}
+  #merkleSvg text{font-family:var(--mono)}
+  .mnode rect{fill:#fff;stroke:var(--ink);stroke-width:1.2;rx:6}
+  .mnode text.lab{font-size:10px;font-weight:700;letter-spacing:.08em;fill:var(--muted)}
+  .mnode text.hsh{font-size:11px;fill:var(--ink)}
+  .mnode.leaf{cursor:pointer}
+  .mnode.leaf:hover rect{stroke-width:2}
+  .mnode.path rect{stroke:var(--orange);stroke-width:2.5;fill:var(--orange-soft)}
+  .mnode.proof rect{stroke:var(--orange);stroke-width:2;stroke-dasharray:5 4;fill:#fff}
+  .medge{stroke:#B9C0B4;stroke-width:1.4}
+  .medge.path{stroke:var(--orange);stroke-width:2.5}
+
+  /* ---------- race ---------- */
+  .racegrid{display:flex;gap:16px;flex-wrap:wrap;align-items:center;margin-bottom:12px}
+  #raceStatus{font-family:var(--mono);font-size:13px;margin-top:10px;min-height:40px}
+  #raceStatus b{color:var(--orange-ink)}
+
+  /* ---------- calculator ---------- */
+  .calcgrid{display:flex;gap:28px;flex-wrap:wrap;margin-bottom:6px}
+  .calcgrid label{display:flex;flex-direction:column;gap:4px;font-family:var(--mono);font-size:12px;color:var(--muted)}
+  .calcgrid output{font-weight:700;color:var(--ink);font-size:14px}
+  .bigprob{font-family:var(--mono);font-size:30px;font-weight:700;color:var(--orange-ink);margin:8px 0 2px}
+  .bigprob small{font-size:13px;color:var(--muted);font-weight:400;display:block;letter-spacing:.08em}
+
+  /* ---------- privacy models ---------- */
+  .privrow{display:flex;flex-direction:column;gap:14px;margin:20px 0}
+  .privmodel{border:1px solid var(--line);border-radius:8px;padding:12px 14px;background:#fff}
+  .privmodel .pm-name{font-family:var(--mono);font-size:11px;text-transform:uppercase;letter-spacing:.12em;color:var(--muted);margin-bottom:8px}
+  .pmflow{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-family:var(--mono);font-size:12px}
+  .pmbox{border:1.4px solid var(--ink);border-radius:6px;padding:5px 10px;background:#fff}
+  .pmbox.ghost{border-style:dashed;color:var(--muted);border-color:var(--muted)}
+  .pmbox.hot{border-color:var(--orange);background:var(--orange-soft)}
+  .pmarrow{color:var(--muted)}
+  .pmwall{color:var(--red);font-weight:700;font-size:15px}
+
+  /* ---------- beyond ---------- */
+  #beyond{border-top:4px double var(--line);margin-top:48px;padding-top:36px;border-bottom:none}
+  .supp-tag{
+    display:inline-block;font-family:var(--mono);font-size:10.5px;font-weight:700;
+    letter-spacing:.14em;text-transform:uppercase;color:var(--teal);
+    border:1px solid var(--teal);border-radius:20px;padding:3px 10px;margin-bottom:10px;
+  }
+  .beyondgrid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:22px}
+  .bcard{background:#fff;border:1px solid var(--line);border-radius:10px;padding:16px 18px}
+  .bcard h3{margin:0 0 8px;font-size:17px}
+  .bcard h3 .mono{font-size:11px;color:var(--teal);display:block;letter-spacing:.12em;text-transform:uppercase;margin-bottom:6px}
+  .bcard p{margin:0;font-size:15px;color:#3A4750}
+
+  footer{
+    text-align:center;color:var(--muted);font-family:var(--mono);font-size:12px;
+    padding:44px 24px 56px;line-height:2;
+  }
+  footer a{color:var(--teal)}
+
+  @media (max-width:900px){
+    .wrap{grid-template-columns:minmax(0,1fr);gap:0;padding-top:32px}
+    nav.toc{position:static;display:flex;flex-wrap:wrap;gap:4px 14px;border-bottom:1px solid var(--line);padding-bottom:18px;margin-bottom:10px}
+    nav.toc .toc-title{width:100%}
+    nav.toc a{border-left:none;padding:2px 0}
+    .beyondgrid{grid-template-columns:1fr}
+    .mtxrow{grid-template-columns:1fr 1fr}
+  }
+  @media (prefers-reduced-motion:reduce){
+    html{scroll-behavior:auto}
+    .hashstrip{transition:none}
+    .codeout{transition:none}
+  }
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="eyebrow">An interactive reading · original paper published 31 October 2008</div>
+  <h1>Bitcoin: A Peer-to-Peer Electronic Cash System</h1>
+  <div class="byline">by <b>Satoshi Nakamoto</b> · satoshin@gmx.com · www.bitcoin.org — annotated &amp; explained, with live demos</div>
+  <div class="hashstrip" id="heroHash"><small>SHA-256 of this paper's title — computed live in your browser</small><span></span></div>
+  <p class="abstract">“A purely peer-to-peer version of electronic cash would allow online payments to be sent directly
+  from one party to another without going through a financial institution.” — the Abstract, first sentence</p>
+</header>
+
+<div class="wrap">
+<nav class="toc" aria-label="Sections">
+  <div class="toc-title">Contents</div>
+  <a href="#s1">1 · Introduction</a>
+  <a href="#s2">2 · Transactions</a>
+  <a href="#s3">3 · Timestamp Server</a>
+  <a href="#s4">4 · Proof-of-Work</a>
+  <a href="#s5">5 · Network</a>
+  <a href="#s6">6 · Incentive</a>
+  <a href="#s7">7 · Reclaiming Disk Space</a>
+  <a href="#s8">8 · Simplified Payment Verification</a>
+  <a href="#s9">9 · Combining &amp; Splitting Value</a>
+  <a href="#s10">10 · Privacy</a>
+  <a href="#s11">11 · Calculations</a>
+  <a href="#s12">12 · Conclusion</a>
+  <a href="#beyond" class="extra">＋ Beyond the Whitepaper</a>
+</nav>
+
+<main>
+
+<!-- ============================================================ 1 -->
+<section class="paper-sec" id="s1">
+  <div class="eyebrow"><span class="no">§ 01</span> · The problem</div>
+  <h2>Introduction</h2>
+  <p class="satoshi-says">“Commerce on the Internet has come to rely almost exclusively on financial institutions serving as
+  trusted third parties to process electronic payments.”</p>
+  <p><b>What it's actually saying:</b> in 2008, every online payment ran through an intermediary — a bank,
+  a card network, PayPal. That works, but the intermediary is a load-bearing wall. Because banks can and
+  do reverse payments (chargebacks, fraud disputes), no online payment is ever truly final. Merchants price
+  that risk in, demand more personal information than they should need, and small casual payments become
+  uneconomical because every transaction carries mediation overhead.</p>
+  <p>Physical cash doesn't have this problem — handing someone a bill is final and requires no referee.
+  The paper's goal is <em>electronic cash</em>: a payment system with cash-like finality, where the thing
+  that prevents cheating is not a trusted company but <b>cryptographic proof plus economics</b>.</p>
+  <p>The one-sentence preview of the whole design: transactions are timestamped by hashing them into an
+  ongoing chain of computational proof-of-work, and the honest history is simply the chain that has the most
+  computation behind it. As long as honest participants collectively control more computing power than any
+  attacker, the honest history wins.</p>
+  <div class="keyidea"><b>Key idea:</b> replace <em>trust in an institution</em> with <em>verification by anyone</em>.
+  Everything in the next eleven sections is machinery for making that swap actually work.</div>
+</section>
+
+<!-- ============================================================ 2 -->
+<section class="paper-sec" id="s2">
+  <div class="eyebrow"><span class="no">§ 02</span> · What a coin is</div>
+  <h2>Transactions</h2>
+  <p class="satoshi-says">“We define an electronic coin as a chain of digital signatures.”</p>
+  <p>This is the paper's most quietly radical sentence. A bitcoin is not a file, a token, or a number in an
+  account. A coin <b>is its own ownership history</b>. To pay you, I take the last transaction that gave me
+  the coin, add your public key to it, and sign the combination with my private key. Anyone can verify the
+  signature chain from the beginning: every link proves the previous owner authorized the hand-off.</p>
+
+  <figure class="demo">
+    <span class="demo-tag fig">Figure</span>
+    <h4>A coin is a chain of signatures</h4>
+    <svg viewBox="0 0 720 240" role="img" aria-label="Three transactions chained by hashes and signatures">
+      <defs>
+        <marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+          <path d="M0,0 L10,5 L0,10 z" fill="#5C6B72"/>
+        </marker>
+        <marker id="arrO" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+          <path d="M0,0 L10,5 L0,10 z" fill="#F7931A"/>
+        </marker>
+      </defs>
+      <g font-family="ui-monospace,Consolas,monospace">
+        <!-- three tx boxes -->
+        <g>
+          <rect x="16" y="50" width="200" height="120" rx="8" fill="#fff" stroke="#1E2A33" stroke-width="1.4"/>
+          <text x="116" y="74" text-anchor="middle" font-size="12" font-weight="700" fill="#1E2A33">Transaction 1</text>
+          <text x="116" y="98" text-anchor="middle" font-size="11" fill="#0E6E6B">Owner 1's public key</text>
+          <line x1="36" y1="110" x2="196" y2="110" stroke="#DFE3DA"/>
+          <text x="116" y="128" text-anchor="middle" font-size="11" fill="#5C6B72">hash of prior transfer</text>
+          <text x="116" y="152" text-anchor="middle" font-size="11" fill="#B26400">✍ Owner 0's signature</text>
+        </g>
+        <g>
+          <rect x="260" y="50" width="200" height="120" rx="8" fill="#fff" stroke="#1E2A33" stroke-width="1.4"/>
+          <text x="360" y="74" text-anchor="middle" font-size="12" font-weight="700" fill="#1E2A33">Transaction 2</text>
+          <text x="360" y="98" text-anchor="middle" font-size="11" fill="#0E6E6B">Owner 2's public key</text>
+          <line x1="280" y1="110" x2="440" y2="110" stroke="#DFE3DA"/>
+          <text x="360" y="128" text-anchor="middle" font-size="11" fill="#5C6B72">hash of Transaction 1</text>
+          <text x="360" y="152" text-anchor="middle" font-size="11" fill="#B26400">✍ Owner 1's signature</text>
+        </g>
+        <g>
+          <rect x="504" y="50" width="200" height="120" rx="8" fill="#fff" stroke="#1E2A33" stroke-width="1.4"/>
+          <text x="604" y="74" text-anchor="middle" font-size="12" font-weight="700" fill="#1E2A33">Transaction 3</text>
+          <text x="604" y="98" text-anchor="middle" font-size="11" fill="#0E6E6B">Owner 3's public key</text>
+          <line x1="524" y1="110" x2="684" y2="110" stroke="#DFE3DA"/>
+          <text x="604" y="128" text-anchor="middle" font-size="11" fill="#5C6B72">hash of Transaction 2</text>
+          <text x="604" y="152" text-anchor="middle" font-size="11" fill="#B26400">✍ Owner 2's signature</text>
+        </g>
+        <path d="M216,110 L258,110" stroke="#5C6B72" stroke-width="1.6" marker-end="url(#arr)"/>
+        <path d="M460,110 L502,110" stroke="#5C6B72" stroke-width="1.6" marker-end="url(#arr)"/>
+        <text x="360" y="210" text-anchor="middle" font-size="11.5" fill="#5C6B72">each transfer = hash(previous transaction + new owner's key), signed by the current owner</text>
+      </g>
+    </svg>
+  </figure>
+
+  <p><b>But signatures alone aren't enough.</b> Nothing stops me from signing the same coin over to two
+  different people — the <em>double-spend</em> problem. The old fix is a central mint that sees every
+  transaction and keeps the one true ledger; but then the mint is a bank again and we've solved nothing.</p>
+  <p>The insight: the payee doesn't need to trust anyone — they need to know that <em>at the time they were
+  paid, no earlier spend of that coin existed</em>. The only way to know that without a referee is for
+  transactions to be <b>publicly announced</b>, and for all participants to <b>agree on a single ordering</b>
+  of history. The rest of the paper builds that ordering machine.</p>
+</section>
+
+<!-- ============================================================ 3 -->
+<section class="paper-sec" id="s3">
+  <div class="eyebrow"><span class="no">§ 03</span> · Ordering events</div>
+  <h2>Timestamp Server</h2>
+  <p class="satoshi-says">“Each timestamp includes the previous timestamp in its hash, forming a chain, with each additional
+  timestamp reinforcing the ones before it.”</p>
+  <p>How do you prove data existed at a certain time, and in a certain order, without a notary? Hash it and
+  publish the hash widely — like printing it in a newspaper. A hash is a tiny fingerprint that could only have
+  been produced from that exact data, so a published hash proves the data existed when it was published.</p>
+  <p>Now the trick that gives the blockchain its name: make each new timestamp <b>include the previous
+  timestamp's hash inside its own hash</b>. Every new entry now mathematically vouches for the entire past.
+  To alter one old entry you would have to recompute its hash — which changes the next hash, which changes
+  the next, all the way to the present. History becomes a structure where the newest layer pins down all the
+  older ones.</p>
+  <div class="keyidea"><b>Key idea:</b> chained hashes turn “a list of records” into “a list of records where
+  editing the past is detectable by anyone in milliseconds.” Try it yourself in §4's tamper demo below.</div>
+</section>
+
+<!-- ============================================================ 4 -->
+<section class="paper-sec" id="s4">
+  <div class="eyebrow"><span class="no">§ 04</span> · Making history expensive</div>
+  <h2>Proof-of-Work</h2>
+  <p class="satoshi-says">“The proof-of-work involves scanning for a value that when hashed, such as with SHA-256, the hash
+  begins with a number of zero bits.”</p>
+  <p>A hash chain makes tampering <em>detectable</em> — but anyone could still cheaply rewrite the whole chain
+  and present it as a rival history. So the paper makes each link <b>expensive to forge</b>. To add a block you
+  must find a <code>nonce</code> (a throwaway number) such that the block's hash starts with a required number
+  of zeros. Hashes are unpredictable, so the only strategy is brute force: try nonce 0, 1, 2, … millions or
+  quintillions of times. Each extra required zero bit doubles the average work.</p>
+  <p>The magic asymmetry: finding the nonce is brutally hard, but <b>checking it takes one hash</b>. A valid
+  block carries built-in, self-verifying evidence that real computation was burned to create it. And because
+  every block's hash includes the previous block's hash, rewriting an old block means redoing its
+  proof-of-work <em>and every block after it</em> — while the honest network keeps extending the real chain.</p>
+  <p>This also solves the voting problem. Decisions can't be one-IP-one-vote (IPs are free to fake); they
+  become <b>one-CPU-one-vote</b>, and the ballot box is the chain itself: the chain with the most accumulated
+  work embodies the majority's verdict. A <b>difficulty adjustment</b> retargets the required zeros so blocks
+  keep arriving at a steady pace no matter how much hardware joins.</p>
+
+  <!-- ——— interactive tamper chain ——— -->
+  <div class="demo" id="chainDemoWrap">
+    <span class="demo-tag">Interactive</span>
+    <h4>Tamper with a blockchain</h4>
+    <p class="hint">Each block's hash must start with <code>00</code> (our toy difficulty) and includes the previous block's
+    hash. <b>Edit the data in any block</b> — watch it and every later block break. Then re-mine them, in order, to repair the chain.</p>
+    <div class="chainrow" id="chainDemo"></div>
+    <button class="secondary" id="chainReset">↺ Reset chain</button>
+    <figcaption>This is why “6 confirmations” means safety: a buried transaction is guarded by every block above it.</figcaption>
+  </div>
+
+  <!-- ——— live mining demo ——— -->
+  <div class="demo">
+    <span class="demo-tag">Interactive</span>
+    <h4>Mine a block yourself</h4>
+    <p class="hint">Your browser will brute-force nonces with real SHA-256 until the hash starts with enough zeros.
+    Raise the difficulty and feel the exponential wall.</p>
+    <div class="minegrid">
+      <div><label class="fld" for="mineData">Block data</label>
+        <input type="text" id="mineData" value="Alice pays Bob 5 BTC"></div>
+      <div><label class="fld" for="mineDiff">Difficulty (leading hex zeros)</label>
+        <select id="mineDiff">
+          <option value="1">1 — trivial (~16 tries)</option>
+          <option value="2">2 — easy (~256 tries)</option>
+          <option value="3" selected>3 — real work (~4,096 tries)</option>
+          <option value="4">4 — patience (~65,536 tries)</option>
+          <option value="5">5 — go get coffee (~1,048,576 tries)</option>
+        </select></div>
+      <div><button id="mineBtn">⛏ Mine</button></div>
+    </div>
+    <div class="minestats">
+      <div class="st"><b id="mineTries">0</b><span>nonces tried</span></div>
+      <div class="st"><b id="mineTime">0.0s</b><span>elapsed</span></div>
+      <div class="st"><b id="mineNonce">—</b><span>winning nonce</span></div>
+    </div>
+    <div class="hashout" id="mineHash">hash output will appear here…</div>
+    <figcaption>Bitcoin's real network does ~10²⁰ of these attempts per second, worldwide, and one block still takes ~10 minutes. That gap <em>is</em> the security.</figcaption>
+  </div>
+
+  <!-- ——— code: header hashing ——— -->
+  <div class="codepanel">
+    <div class="codehead"><span>code · hashing a block header</span><button class="runbtn" data-code="code1" data-out="out1">▶ Run</button></div>
+    <pre class="code" id="code1"><span class="c">// A block header commits to everything in the block.</span>
+<span class="c">// Change any field — even by one digit — and the hash is unrecognizable.</span>
+<span class="k">const</span> header = {
+  prevHash:   '00000000000000000002a7c4c1e48d76c5a37902165a2701...',
+  merkleRoot: '871714dcbae6c8193a2bb9b2a69fe1c0440399f38d94b3a0...',
+  time:  1231006505,        <span class="c">// Unix timestamp</span>
+  bits:  '1d00ffff',        <span class="c">// difficulty target, compact form</span>
+  nonce: 2083236893         <span class="c">// the number miners grind through</span>
+};
+
+<span class="c">// Real Bitcoin double-SHA-256s the raw 80-byte header;</span>
+<span class="c">// hashing its text form shows the same idea.</span>
+<span class="k">const</span> serialized = header.prevHash + header.merkleRoot +
+                   header.time + header.bits + header.nonce;
+
+print('header hash: ' + sha256(serialized));
+
+print('now change the nonce by exactly 1…');
+print('new hash:    ' + sha256(serialized.replace('2083236893', '2083236894')));
+<span class="c">// → completely different output: this is the "avalanche effect",</span>
+<span class="c">//   and it's why mining can't be shortcut — only brute-forced.</span></pre>
+    <div class="codeout" id="out1"></div>
+  </div>
+
+  <!-- ——— code: PoW loop ——— -->
+  <div class="codepanel">
+    <div class="codehead"><span>code · a toy proof-of-work loop</span><button class="runbtn" data-code="code2" data-out="out2">▶ Run</button></div>
+    <pre class="code" id="code2"><span class="c">// Proof-of-work in 10 lines: find a nonce that makes the hash</span>
+<span class="c">// start with `difficulty` zeros. Each zero multiplies the work ~16×.</span>
+<span class="k">const</span> data = 'block #1: alice pays bob 5 BTC';
+<span class="k">const</span> difficulty = 3;
+<span class="k">const</span> target = '0'.repeat(difficulty);
+
+<span class="k">let</span> nonce = 0, hash = '';
+<span class="k">const</span> t0 = performance.now();
+<span class="k">while</span> (true) {
+  hash = sha256(data + nonce);          <span class="c">// hash data+nonce together</span>
+  <span class="k">if</span> (hash.startsWith(target)) <span class="k">break</span>;  <span class="c">// lottery won — block is valid</span>
+  nonce++;                              <span class="c">// lost — try the next ticket</span>
+}
+<span class="k">const</span> ms = (performance.now() - t0).toFixed(0);
+
+print('winning nonce: ' + nonce + '  (' + (nonce + 1) + ' attempts in ' + ms + ' ms)');
+print('winning hash:  ' + hash);
+<span class="c">// Verifying takes ONE hash — that asymmetry is the whole trick:</span>
+print('verify: sha256(data + nonce) starts with "' + target + '" ? ' +
+      sha256(data + nonce).startsWith(target));</pre>
+    <div class="codeout" id="out2"></div>
+  </div>
+</section>
+
+<!-- ============================================================ 5 -->
+<section class="paper-sec" id="s5">
+  <div class="eyebrow"><span class="no">§ 05</span> · The protocol</div>
+  <h2>Network</h2>
+  <p class="satoshi-says">“Nodes always consider the longest chain to be the correct one and will keep working on extending it.”</p>
+  <p>The whole protocol is six steps, and none requires anyone to be identified or trusted:</p>
+  <ol>
+    <li>New transactions are <b>broadcast to all nodes</b>.</li>
+    <li>Each node collects them into a candidate <b>block</b>.</li>
+    <li>Each node grinds on the <b>proof-of-work</b> for its block.</li>
+    <li>Whoever finds it first <b>broadcasts the block</b>.</li>
+    <li>Nodes accept it only if every transaction inside is <b>valid and unspent</b>.</li>
+    <li>Nodes show acceptance by <b>building the next block on top of it</b>.</li>
+  </ol>
+  <p>Ties happen — two miners can find blocks at nearly the same moment, briefly splitting the network. No
+  meeting is called; nodes just work on the branch they saw first, and the tie breaks itself when the next
+  block lands on one side. That branch is now longer, so everyone hops to it. This is why the paper needs no
+  perfect messaging: miss a block and the next one reveals the gap; the chain is self-healing gossip.</p>
+  <p>The consensus rule is a single sentence: <b>the valid chain with the most accumulated proof-of-work is
+  the truth</b>. An attacker who wants a different truth can't argue, forge signatures, or stuff ballots —
+  they can only out-compute the entire honest world, block after block, forever.</p>
+
+  <div class="demo">
+    <span class="demo-tag">Interactive</span>
+    <h4>The chain race: honest network vs. attacker</h4>
+    <p class="hint">Each tick, one new block is found; the attacker wins it with probability equal to their
+    share of total hash power. Watch how reliably a minority falls behind — this is §11's math, animated.</p>
+    <div class="racegrid">
+      <label class="fld" for="raceQ">Attacker hash power: <output id="raceQv">30</output>%</label>
+      <input type="range" id="raceQ" min="5" max="50" value="30" step="1">
+      <button id="raceStart">▶ Race</button>
+      <button class="secondary" id="raceReset">↺ Reset</button>
+    </div>
+    <svg id="raceSvg" viewBox="0 0 700 170" role="img" aria-label="Animated race between honest and attacker chains">
+      <text x="8" y="45" font-size="11" font-family="ui-monospace,Consolas,monospace" fill="#0E6E6B" font-weight="700">HONEST</text>
+      <text x="8" y="120" font-size="11" font-family="ui-monospace,Consolas,monospace" fill="#BF3B2B" font-weight="700">ATTACKER</text>
+      <g id="raceHonest"></g>
+      <g id="raceAttack"></g>
+    </svg>
+    <div id="raceStatus">Press ▶ Race to run the experiment. Run it several times — variance is real, gravity wins.</div>
+  </div>
+</section>
+
+<!-- ============================================================ 6 -->
+<section class="paper-sec" id="s6">
+  <div class="eyebrow"><span class="no">§ 06</span> · Why anyone bothers</div>
+  <h2>Incentive</h2>
+  <p class="satoshi-says">“He ought to find it more profitable to play by the rules … than to undermine the system and the
+  validity of his own wealth.”</p>
+  <p>Mining burns real electricity — why would anyone volunteer? The paper's answer created the entire mining
+  industry: <b>the first transaction in every block mints new coins, payable to whoever mined it</b>. This is
+  elegant twice over. It rewards the security work, <em>and</em> it distributes new currency into circulation
+  with no central issuer — the paper compares it to gold miners spending resources to add gold to
+  circulation. The second income stream is <b>transaction fees</b>: the small difference between a
+  transaction's inputs and outputs goes to the miner. Once the coin-minting schedule tapers off (it halves
+  every four years), fees take over — the system is designed to eventually run inflation-free.</p>
+  <p>Then the game-theoretic keystone. Suppose someone actually assembles majority hash power. They could
+  double-spend their own recent payments. But with that hardware they could instead mine honestly and
+  collect more new coins than everyone else combined — while every attack undermines confidence in the very
+  currency their fortune and hardware are denominated in. The system doesn't assume attackers are moral;
+  it arranges for <b>honesty to be the most profitable strategy available</b>.</p>
+</section>
+
+<!-- ============================================================ 7 -->
+<section class="paper-sec" id="s7">
+  <div class="eyebrow"><span class="no">§ 07</span> · Pruning history</div>
+  <h2>Reclaiming Disk Space</h2>
+  <p class="satoshi-says">“Transactions are hashed in a Merkle Tree, with only the root included in the block's hash.”</p>
+  <p>If every node must keep every transaction forever, the ledger bloats. The fix: inside a block,
+  transactions aren't hashed into the header one by one — they're paired up and hashed in layers, forming a
+  <b>Merkle tree</b>. Only the tree's <b>root</b> (one 32-byte hash) goes into the block header. The root
+  still commits to every transaction: change any leaf and the change cascades up and alters the root.</p>
+  <p>The payoff is surgical deletion. Once a coin's old transactions are long spent, a node can throw the
+  branch away and keep only the connecting hashes — the header (and the chain built on it) stays intact and
+  verifiable. Headers are ~80 bytes each, ~4 MB per year: the paper dryly notes storage “should not be a
+  problem even if the block headers must be kept in memory.”</p>
+
+  <div class="demo">
+    <span class="demo-tag">Interactive</span>
+    <h4>Merkle tree, live</h4>
+    <p class="hint"><b>Edit a transaction</b> and watch its changes ripple up to the root.
+    <b>Click a leaf</b> to see its Merkle proof — the dashed hashes are the <em>only</em> data needed to prove
+    that transaction is in the block.</p>
+    <svg id="merkleSvg" viewBox="0 0 660 280" role="img" aria-label="Interactive Merkle tree of four transactions"></svg>
+    <div class="mtxrow">
+      <input type="text" class="mtx" data-i="0" value="alice → bob: 5" aria-label="Transaction 1">
+      <input type="text" class="mtx" data-i="1" value="bob → carol: 2" aria-label="Transaction 2">
+      <input type="text" class="mtx" data-i="2" value="carol → dan: 1" aria-label="Transaction 3">
+      <input type="text" class="mtx" data-i="3" value="dan → erin: 4" aria-label="Transaction 4">
+    </div>
+    <figcaption id="merkleHint">A block with 4,000 transactions needs a proof of only ~12 hashes — proofs grow as log₂(n), not n.</figcaption>
+  </div>
+
+  <div class="codepanel">
+    <div class="codehead"><span>code · building a Merkle root</span><button class="runbtn" data-code="code3" data-out="out3">▶ Run</button></div>
+    <pre class="code" id="code3"><span class="c">// A Merkle root: hash all transactions, then hash the hashes in pairs,</span>
+<span class="c">// layer by layer, until a single hash remains.</span>
+<span class="k">function</span> merkleRoot(txs) {
+  <span class="k">let</span> level = txs.map(sha256);              <span class="c">// leaves = hashed transactions</span>
+  <span class="k">while</span> (level.length > 1) {
+    <span class="k">if</span> (level.length % 2) level.push(level[level.length - 1]); <span class="c">// odd count → duplicate last</span>
+    <span class="k">const</span> next = [];
+    <span class="k">for</span> (<span class="k">let</span> i = 0; i &lt; level.length; i += 2) {
+      next.push(sha256(level[i] + level[i + 1])); <span class="c">// parent = hash(left ‖ right)</span>
+    }
+    level = next;                           <span class="c">// climb one layer</span>
+  }
+  <span class="k">return</span> level[0];                          <span class="c">// the root — 32 bytes standing for everything</span>
+}
+
+<span class="k">const</span> txs = ['alice→bob:5', 'bob→carol:2', 'carol→dan:1', 'dan→erin:4'];
+print('root:      ' + merkleRoot(txs));
+
+txs[2] = 'carol→dan:100';                   <span class="c">// tamper with one transaction…</span>
+print('tampered:  ' + merkleRoot(txs));     <span class="c">// …and the root betrays it instantly</span></pre>
+    <div class="codeout" id="out3"></div>
+  </div>
+</section>
+
+<!-- ============================================================ 8 -->
+<section class="paper-sec" id="s8">
+  <div class="eyebrow"><span class="no">§ 08</span> · Light clients</div>
+  <h2>Simplified Payment Verification</h2>
+  <p class="satoshi-says">“It is possible to verify payments without running a full network node.”</p>
+  <p>Your phone shouldn't need the whole ledger to check that a payment cleared. SPV is the recipe: keep only
+  the <b>block headers</b> of the longest chain (megabytes, not hundreds of gigabytes), then ask any node for
+  the <b>Merkle branch</b> linking your transaction to a header — exactly the dashed hashes in the §7 demo
+  above. If the branch hashes up to a root buried in the header chain, the network's miners have committed
+  work on top of your transaction. Every block piled above it is another vault door.</p>
+  <p>The honest trade-off, stated plainly in the paper: an SPV client doesn't validate transactions itself —
+  it trusts that the chain with the most work is honest. It can't be fooled while honest nodes dominate, but
+  it's more exposed than a full node if an attacker ever overpowers the network. The suggested mitigations —
+  accept alerts from full nodes, and businesses should run their own — are essentially how wallets still
+  operate today.</p>
+</section>
+
+<!-- ============================================================ 9 -->
+<section class="paper-sec" id="s9">
+  <div class="eyebrow"><span class="no">§ 09</span> · Making change</div>
+  <h2>Combining and Splitting Value</h2>
+  <p class="satoshi-says">“To allow value to be split and combined, transactions contain multiple inputs and outputs.”</p>
+  <p>Coins from §2 are indivisible chains — you can't tear one in half to pay for coffee. So a real
+  transaction is a small machine with <b>multiple inputs and outputs</b>: inputs gather value from previous
+  transactions you own; outputs distribute it — typically one to the payee and one <b>back to yourself as
+  change</b>, exactly like paying with a $20 for a $7 sandwich.</p>
+  <div class="privrow">
+    <div class="privmodel">
+      <div class="pm-name">One transaction, paying 7 with a 5 + a 3</div>
+      <div class="pmflow">
+        <span class="pmbox">in: 5 (from tx A)</span>
+        <span class="pmbox">in: 3 (from tx B)</span>
+        <span class="pmarrow">⟶</span>
+        <span class="pmbox hot">out: 7 → merchant</span>
+        <span class="pmbox">out: 1 → self (change)</span>
+      </div>
+    </div>
+  </div>
+  <p>Doesn't every payment then depend on a spidering web of prior payments? Yes — and the paper shrugs:
+  it doesn't matter, because <b>you never need to unpack the full history</b>. The chain already proved every
+  input valid the moment it was buried under proof-of-work. Validity is checked once, then compounded forever.</p>
+</section>
+
+<!-- ============================================================ 10 -->
+<section class="paper-sec" id="s10">
+  <div class="eyebrow"><span class="no">§ 10</span> · Pseudonymity</div>
+  <h2>Privacy</h2>
+  <p class="satoshi-says">“Privacy can still be maintained by … keeping public keys anonymous.”</p>
+  <p>Every transaction is broadcast to the world — the opposite of bank secrecy. The paper's answer is to
+  move the privacy boundary. A bank hides <em>transactions</em> from the public but knows exactly
+  <em>who you are</em>. Bitcoin publishes every transaction but identifies parties only as public keys —
+  the world sees <em>amounts moving between pseudonyms</em>, “like tape-time in stock exchanges”: someone
+  bought, the amount is public, the person is not.</p>
+  <div class="privrow">
+    <div class="privmodel">
+      <div class="pm-name">Traditional model — privacy via gatekeeper</div>
+      <div class="pmflow">
+        <span class="pmbox">identities</span><span class="pmarrow">→</span>
+        <span class="pmbox">transactions</span><span class="pmarrow">→</span>
+        <span class="pmbox">trusted third party</span>
+        <span class="pmwall">‖</span>
+        <span class="pmbox ghost">public sees nothing</span>
+      </div>
+    </div>
+    <div class="privmodel">
+      <div class="pm-name">Bitcoin's model — privacy via pseudonyms</div>
+      <div class="pmflow">
+        <span class="pmbox">identities</span>
+        <span class="pmwall">‖</span>
+        <span class="pmbox hot">public keys ⇄ transactions</span>
+        <span class="pmarrow">→</span>
+        <span class="pmbox">everyone sees everything</span>
+      </div>
+    </div>
+  </div>
+  <p>Recommended hygiene: <b>a fresh key pair for every transaction</b>, so payments can't be linked to a
+  common owner. The paper immediately flags its own weakness — multi-input transactions necessarily reveal
+  that their inputs shared an owner, and one identity leak can unravel a whole cluster. That candid caveat
+  spawned an entire field: blockchain forensics on one side, mixers and privacy coins on the other.</p>
+</section>
+
+<!-- ============================================================ 11 -->
+<section class="paper-sec" id="s11">
+  <div class="eyebrow"><span class="no">§ 11</span> · The math of finality</div>
+  <h2>Calculations</h2>
+  <p class="satoshi-says">“The probability drops exponentially as the number of blocks the attacker has to catch up with increases.”</p>
+  <p>The security claim gets quantified. Model an attacker secretly mining a rival chain to un-spend a
+  payment: every block found is a coin-flip weighted by hash power — the attacker gains ground with
+  probability <code>q</code>, falls behind with probability <code>p = 1 − q</code>. This is the classic
+  <b>Gambler's Ruin</b> problem: a gambler with infinite credit but unfavorable odds. The chance of ever
+  erasing a transaction buried <code>z</code> blocks deep is roughly <code>(q/p)ᶻ</code> —
+  <b>exponential decay</b>. Each confirmation multiplies the attacker's odds by a number less than one.</p>
+  <p>The recipient's practical question — “how long do I wait before shipping the goods?” — is answered with
+  the calculator below (a faithful port of the paper's own C code, Poisson-weighted over the attacker's
+  possible head start). The famous result: against a 10% attacker, 6 confirmations push success odds below
+  0.1%. That is where the folk rule <b>“wait for 6 confirmations” (~1 hour)</b> comes from.</p>
+
+  <div class="demo">
+    <span class="demo-tag">Interactive</span>
+    <h4>Attacker success calculator — the paper's own formula</h4>
+    <p class="hint">Probability that an attacker with <code>q</code> of the hash power ever rewrites a
+    transaction buried <code>z</code> blocks deep.</p>
+    <div class="calcgrid">
+      <label><span>attacker power q = <output id="calcQv">10</output>%</span>
+        <input type="range" id="calcQ" min="1" max="49" value="10"></label>
+      <label><span>confirmations z = <output id="calcZv">6</output></span>
+        <input type="range" id="calcZ" min="0" max="15" value="6"></label>
+    </div>
+    <div class="bigprob"><span id="calcOut">—</span><small>probability the attacker ever catches up</small></div>
+    <svg id="calcChart" viewBox="0 0 660 190" role="img" aria-label="Bar chart of attacker success probability by confirmations"></svg>
+    <figcaption>Bars: success probability at each z for the chosen q (log-scaled). Orange bar = your chosen z. At q ≥ 50% the guarantee simply ends — that's “a 51% attack.”</figcaption>
+  </div>
+</section>
+
+<!-- ============================================================ 12 -->
+<section class="paper-sec" id="s12">
+  <div class="eyebrow"><span class="no">§ 12</span> · Nine pages later</div>
+  <h2>Conclusion</h2>
+  <p class="satoshi-says">“We have proposed a system for electronic transactions without relying on trust.”</p>
+  <p>The conclusion is one paragraph because the argument is complete. Retrace it: coins as signature chains
+  give <b>ownership</b> (§2) but not ordering; a hash-chained timestamp server gives <b>ordering</b> (§3) but
+  not cost; proof-of-work makes rewriting history <b>expensive</b> (§4); a gossip protocol with a
+  longest-chain rule turns that cost into <b>consensus</b> (§5); block rewards make maintaining consensus
+  <b>profitable</b> (§6); Merkle trees, SPV, and multi-input transactions make it <b>practical</b> (§7–9);
+  pseudonyms make it tolerably <b>private</b> (§10); and the gambler's-ruin math makes the guarantee
+  <b>quantifiable</b> (§11).</p>
+  <p>The closing note is easy to miss and very Satoshi: nodes “can leave and rejoin the network at will,”
+  vote with their CPU, and need no coordination — “rules and incentives can be enforced with this consensus
+  mechanism.” No launch plan, no company, no foundation. Two months later the genesis block was mined, and
+  the paper's nine pages have run, unmodified in their essentials, ever since.</p>
+</section>
+
+<!-- ============================================================ beyond -->
+<section class="paper-sec" id="beyond">
+  <span class="supp-tag">Supplementary — not in the 2008 paper</span>
+  <h2>Beyond the Whitepaper</h2>
+  <p>Concepts the last seventeen years bolted onto — or reacted against — Satoshi's design. None of these
+  appear in the original nine pages; all of them assume you've understood them.</p>
+  <div class="beyondgrid">
+    <div class="bcard">
+      <h3><span class="mono">Keys in practice</span>Wallets &amp; Keys</h3>
+      <p>A wallet stores no coins — only private keys; the coins live on the chain. Modern wallets derive
+      endless key pairs from one master seed (those 12–24 backup words), automating §10's
+      “new key per transaction” hygiene. Lose the seed and the coins are cryptographically orphaned forever:
+      self-custody means the trusted third party you eliminated is now you.</p>
+    </div>
+    <div class="bcard">
+      <h3><span class="mono">Programmable transactions</span>Smart Contracts</h3>
+      <p>Bitcoin transactions carry a tiny, deliberately limited script. Ethereum (2015) asked: what if
+      blocks could carry <em>arbitrary programs</em> whose execution every node verifies? Money that enforces
+      its own contract terms — escrow, auctions, lending — with no intermediary. The cost is a vastly larger
+      attack surface: on a blockchain, a bug in a contract is not a patch away, it's permanent.</p>
+    </div>
+    <div class="bcard">
+      <h3><span class="mono">Consensus without mining</span>Proof of Stake</h3>
+      <p>PoW's security bill is electricity. Proof of stake replaces “one CPU, one vote” with “one staked
+      coin, one vote”: validators lock up currency as collateral and provably lose it if they cheat.
+      Same goal as §4 — make rewriting history ruinously expensive — but the cost is capital at risk instead
+      of energy burned. Ethereum switched in 2022; Bitcoin, deliberately, never has.</p>
+    </div>
+    <div class="bcard">
+      <h3><span class="mono">When rules change</span>Forks</h3>
+      <p>§5's tie-breaking forks resolve in minutes. But when the <em>rules</em> change, the split can be
+      permanent: a <b>soft fork</b> tightens rules so old nodes still accept new blocks; a <b>hard fork</b>
+      breaks compatibility, and if part of the community keeps mining the old rules, one currency becomes two
+      (Bitcoin / Bitcoin Cash, 2017). Forks are the governance mechanism the paper never needed to specify.</p>
+    </div>
+    <div class="bcard">
+      <h3><span class="mono">~7 transactions/sec is not Visa</span>Scaling &amp; Layer 2</h3>
+      <p>Small blocks every ten minutes secure the chain but cap its throughput. Layer-2 designs like the
+      Lightning Network move payments off-chain — two parties transact instantly and privately, settling to
+      the chain only to open or close their channel. The base chain becomes what §7 hinted at: a settlement
+      layer, not a payment rail.</p>
+    </div>
+    <div class="bcard">
+      <h3><span class="mono">What survived contact with reality</span>The Scorecard</h3>
+      <p>Held up: the core consensus design — never broken in operation since 2009. Drifted: “one CPU one
+      vote” became industrial ASIC farms and mining pools; most users hold coins via custodians — trusted
+      third parties, re-invented. The paper solved trustless <em>consensus</em>; trustless <em>usage</em>
+      turned out to be a human problem, not a cryptographic one.</p>
+    </div>
+  </div>
+</section>
+
+</main>
+</div>
+
+<footer>
+  An interactive companion to the original paper — <a href="https://bitcoin.org/bitcoin.pdf">bitcoin.org/bitcoin.pdf</a> (9 pages, still worth reading raw).<br>
+  Every hash on this page is a real SHA-256 computed in your browser. No libraries, no network — like the subject matter, it verifies itself.
+</footer>
+
+<script>
+/* ============================================================
+   Pure functions (also exercised by the node self-test)
+   ============================================================ */
+
+/* Compact synchronous SHA-256 — real algorithm (FIPS 180-4), no dependencies. */
+const K256 = [
+  0x428a2f98,0x71374491,0xb5c0fbcf,0xe9b5dba5,0x3956c25b,0x59f111f1,0x923f82a4,0xab1c5ed5,
+  0xd807aa98,0x12835b01,0x243185be,0x550c7dc3,0x72be5d74,0x80deb1fe,0x9bdc06a7,0xc19bf174,
+  0xe49b69c1,0xefbe4786,0x0fc19dc6,0x240ca1cc,0x2de92c6f,0x4a7484aa,0x5cb0a9dc,0x76f988da,
+  0x983e5152,0xa831c66d,0xb00327c8,0xbf597fc7,0xc6e00bf3,0xd5a79147,0x06ca6351,0x14292967,
+  0x27b70a85,0x2e1b2138,0x4d2c6dfc,0x53380d13,0x650a7354,0x766a0abb,0x81c2c92e,0x92722c85,
+  0xa2bfe8a1,0xa81a664b,0xc24b8b70,0xc76c51a3,0xd192e819,0xd6990624,0xf40e3585,0x106aa070,
+  0x19a4c116,0x1e376c08,0x2748774c,0x34b0bcb5,0x391c0cb3,0x4ed8aa4a,0x5b9cca4f,0x682e6ff3,
+  0x748f82ee,0x78a5636f,0x84c87814,0x8cc70208,0x90befffa,0xa4506ceb,0xbef9a3f7,0xc67178f2];
+
+function sha256(str){
+  const msg = new TextEncoder().encode(str);
+  const l = msg.length, bitLen = l * 8;
+  const total = ((l + 9 + 63) >> 6) << 6;          // pad to a multiple of 64 bytes
+  const bytes = new Uint8Array(total);
+  bytes.set(msg);
+  bytes[l] = 0x80;                                  // append the '1' bit
+  const dv = new DataView(bytes.buffer);
+  dv.setUint32(total - 8, Math.floor(bitLen / 0x100000000)); // 64-bit big-endian length
+  dv.setUint32(total - 4, bitLen >>> 0);
+  let h0=0x6a09e667,h1=0xbb67ae85,h2=0x3c6ef372,h3=0xa54ff53a,
+      h4=0x510e527f,h5=0x9b05688c,h6=0x1f83d9ab,h7=0x5be0cd19;
+  const w = new Int32Array(64);
+  for (let i = 0; i < total; i += 64){
+    for (let t = 0; t < 16; t++) w[t] = dv.getUint32(i + t*4);
+    for (let t = 16; t < 64; t++){
+      const x = w[t-15], y = w[t-2];
+      const s0 = ((x>>>7)|(x<<25)) ^ ((x>>>18)|(x<<14)) ^ (x>>>3);
+      const s1 = ((y>>>17)|(y<<15)) ^ ((y>>>19)|(y<<13)) ^ (y>>>10);
+      w[t] = (w[t-16] + s0 + w[t-7] + s1) | 0;
+    }
+    let a=h0,b=h1,c=h2,d=h3,e=h4,f=h5,g=h6,h=h7;
+    for (let t = 0; t < 64; t++){
+      const S1 = ((e>>>6)|(e<<26)) ^ ((e>>>11)|(e<<21)) ^ ((e>>>25)|(e<<7));
+      const ch = (e & f) ^ (~e & g);
+      const t1 = (h + S1 + ch + K256[t] + w[t]) | 0;
+      const S0 = ((a>>>2)|(a<<30)) ^ ((a>>>13)|(a<<19)) ^ ((a>>>22)|(a<<10));
+      const maj = (a & b) ^ (a & c) ^ (b & c);
+      const t2 = (S0 + maj) | 0;
+      h=g; g=f; f=e; e=(d+t1)|0; d=c; c=b; b=a; a=(t1+t2)|0;
+    }
+    h0=(h0+a)|0; h1=(h1+b)|0; h2=(h2+c)|0; h3=(h3+d)|0;
+    h4=(h4+e)|0; h5=(h5+f)|0; h6=(h6+g)|0; h7=(h7+h)|0;
+  }
+  return [h0,h1,h2,h3,h4,h5,h6,h7].map(x => (x>>>0).toString(16).padStart(8,'0')).join('');
+}
+
+/* All levels of a Merkle tree (even leaf count), leaves first, root last. */
+function merkleLevels(txs){
+  let level = txs.map(sha256);
+  const levels = [level];
+  while (level.length > 1){
+    const next = [];
+    for (let i = 0; i < level.length; i += 2) next.push(sha256(level[i] + level[i+1]));
+    levels.push(next);
+    level = next;
+  }
+  return levels;
+}
+
+/* Satoshi's AttackerSuccessProbability (whitepaper §11), ported from the paper's C code. */
+function attackerSuccess(q, z){
+  const p = 1 - q;
+  if (q >= p) return 1;                       // majority attacker always wins eventually
+  const lambda = z * (q / p);
+  let sum = 1, poisson = Math.exp(-lambda);
+  for (let k = 0; k <= z; k++){
+    if (k > 0) poisson *= lambda / k;
+    sum -= poisson * (1 - Math.pow(q / p, z - k));
+  }
+  return Math.max(0, sum);
+}
+
+/* ============================================================
+   UI wiring (browser only)
+   ============================================================ */
+function initUI(){
+  const $ = s => document.querySelector(s);
+  const $$ = s => [...document.querySelectorAll(s)];
+  const short = (h, n=10) => h.slice(0, n) + '…';
+
+  /* ---------- hero hash strip ---------- */
+  const strip = $('#heroHash');
+  strip.querySelector('span').textContent = sha256('Bitcoin: A Peer-to-Peer Electronic Cash System');
+  requestAnimationFrame(() => strip.classList.add('show'));
+
+  /* ---------- TOC highlight ---------- */
+  const tocLinks = $$('nav.toc a');
+  const byId = {}; tocLinks.forEach(a => byId[a.getAttribute('href').slice(1)] = a);
+  const obs = new IntersectionObserver(es => {
+    es.forEach(e => { if (e.isIntersecting){
+      tocLinks.forEach(a => a.classList.remove('active'));
+      (byId[e.target.id] || {}).classList?.add('active');
+    }});
+  }, {rootMargin:'-15% 0px -70% 0px'});
+  $$('.paper-sec').forEach(s => obs.observe(s));
+
+  /* ---------- tamper chain ---------- */
+  const DIFF = '00';
+  const initialData = ['genesis: hal finney +10', 'alice pays bob 5', 'bob pays carol 2', 'carol pays dan 1'];
+  let chain = [];
+  function blockHash(b){ return sha256(b.i + b.prev + b.data + b.nonce); }
+  function mine(b){ b.nonce = 0; while (!(b.hash = blockHash(b)).startsWith(DIFF)) b.nonce++; }
+  function chainInit(){
+    chain = initialData.map((d, i) => ({i, data:d, nonce:0, prev:'', hash:''}));
+    chain.forEach((b, i) => { b.prev = i ? chain[i-1].hash : '0'.repeat(64); mine(b); });
+    chainRender();
+  }
+  function chainRecompute(){   // propagate hashes downstream WITHOUT re-mining
+    chain.forEach((b, i) => { b.prev = i ? chain[i-1].hash : '0'.repeat(64); b.hash = blockHash(b); });
+  }
+  function chainRender(){
+    const row = $('#chainDemo');
+    row.innerHTML = '';
+    chain.forEach((b, i) => {
+      const ok = b.hash.startsWith(DIFF);
+      if (i > 0){
+        const link = document.createElement('div');
+        link.className = 'chainlink' + (chain[i-1].hash.startsWith(DIFF) ? '' : ' bad');
+        link.textContent = chain[i-1].hash.startsWith(DIFF) ? '⇒' : '✕';
+        row.appendChild(link);
+      }
+      const card = document.createElement('div');
+      card.className = 'blockcard' + (ok ? '' : ' bad');
+      card.innerHTML =
+        `<div class="bhead"><span class="bno">BLOCK ${b.i}</span>` +
+        `<span class="bstate">${ok ? '✔ MINED' : '✕ BROKEN'}</span></div>` +
+        `<label class="fld" for="bd${i}">data</label>` +
+        `<input id="bd${i}" type="text" value="${b.data.replace(/"/g,'&quot;')}" data-i="${i}">` +
+        `<div class="hrow">prev <b>${short(b.prev)}</b></div>` +
+        `<div class="hrow hh">hash <b>${short(b.hash)}</b></div>` +
+        `<div class="hrow">nonce <b>${b.nonce}</b></div>` +
+        (ok ? '' : `<button class="remine" data-i="${i}">⛏ re-mine block ${b.i}</button>`);
+      row.appendChild(card);
+    });
+    row.querySelectorAll('input').forEach(inp => inp.addEventListener('input', e => {
+      const i = +e.target.dataset.i;
+      chain[i].data = e.target.value;
+      chainRecompute();
+      const focus = e.target.id;             // re-render but keep the caret
+      chainRender();
+      const el = document.getElementById(focus);
+      el.focus(); el.setSelectionRange(el.value.length, el.value.length);
+    }));
+    row.querySelectorAll('.remine').forEach(btn => btn.addEventListener('click', e => {
+      const i = +e.target.dataset.i;
+      chain[i].prev = i ? chain[i-1].hash : '0'.repeat(64);
+      mine(chain[i]);
+      chainRecompute();
+      chainRender();
+    }));
+  }
+  $('#chainReset').addEventListener('click', chainInit);
+  chainInit();
+
+  /* ---------- mining demo ---------- */
+  const mineBtn = $('#mineBtn');
+  let mining = false;
+  mineBtn.addEventListener('click', () => {
+    if (mining) return;
+    mining = true; mineBtn.disabled = true; mineBtn.textContent = '⛏ mining…';
+    const data = $('#mineData').value;
+    const diff = +$('#mineDiff').value;
+    const target = '0'.repeat(diff);
+    const out = $('#mineHash');
+    out.classList.remove('found');
+    let nonce = 0; const t0 = performance.now();
+    (function batch(){
+      const stop = nonce + 1500;                 // hash in batches so the UI stays alive
+      while (nonce < stop){
+        const h = sha256(data + nonce);
+        if (h.startsWith(target)){
+          const secs = ((performance.now() - t0) / 1000).toFixed(1);
+          $('#mineTries').textContent = (nonce + 1).toLocaleString();
+          $('#mineTime').textContent = secs + 's';
+          $('#mineNonce').textContent = nonce;
+          out.innerHTML = '<span class="z">' + h.slice(0, diff) + '</span>' + h.slice(diff);
+          out.classList.add('found');
+          mining = false; mineBtn.disabled = false; mineBtn.textContent = '⛏ Mine';
+          return;
+        }
+        nonce++;
+      }
+      $('#mineTries').textContent = nonce.toLocaleString();
+      $('#mineTime').textContent = ((performance.now() - t0) / 1000).toFixed(1) + 's';
+      out.textContent = sha256(data + nonce) ;
+      setTimeout(batch, 0);
+    })();
+  });
+
+  /* ---------- runnable code panels ---------- */
+  $$('.runbtn').forEach(btn => btn.addEventListener('click', () => {
+    const code = document.getElementById(btn.dataset.code).textContent; // spans stripped
+    const out = document.getElementById(btn.dataset.out);
+    out.textContent = ''; out.classList.add('open');
+    const print = s => { out.textContent += '▸ ' + s + '\n'; };
+    try { new Function('print', 'sha256', code)(print, sha256); }
+    catch (err){ out.textContent += '✕ ' + err.message + '\n'; }
+  }));
+
+  /* ---------- merkle tree ---------- */
+  const mSvg = $('#merkleSvg');
+  const mPos = [[85,235],[245,235],[415,235],[575,235],[165,140],[495,140],[330,45]]; // 0-3 leaves, 4-5 mid, 6 root
+  const mEdges = [[0,4],[1,4],[2,5],[3,5],[4,6],[5,6]];
+  const mLabels = ['TX 1','TX 2','TX 3','TX 4','H(1‖2)','H(3‖4)','MERKLE ROOT'];
+  let mSelected = -1;
+  function merkleRender(){
+    const txs = $$('.mtx').map(i => i.value);
+    const lv = merkleLevels(txs);
+    const hashes = [...lv[0], ...lv[1], ...lv[2]];
+    const parentOf = {0:4, 1:4, 2:5, 3:5, 4:6, 5:6};
+    const sibOf = {0:1, 1:0, 2:3, 3:2, 4:5, 5:4};
+    let pathNodes = [], proofNodes = [];
+    if (mSelected >= 0){
+      let n = mSelected;
+      while (n !== undefined){ pathNodes.push(n); if (sibOf[n] !== undefined) proofNodes.push(sibOf[n]); n = parentOf[n]; }
+      proofNodes = proofNodes.filter(x => !pathNodes.includes(x));
+    }
+    const NS = 'http://www.w3.org/2000/svg';
+    mSvg.innerHTML = '';
+    mEdges.forEach(([a, b]) => {
+      const ln = document.createElementNS(NS, 'line');
+      ln.setAttribute('x1', mPos[a][0]); ln.setAttribute('y1', mPos[a][1] - 22);
+      ln.setAttribute('x2', mPos[b][0]); ln.setAttribute('y2', mPos[b][1] + 22);
+      ln.setAttribute('class', 'medge' + (pathNodes.includes(a) && pathNodes.includes(b) ? ' path' : ''));
+      mSvg.appendChild(ln);
+    });
+    mPos.forEach(([x, y], n) => {
+      const g = document.createElementNS(NS, 'g');
+      g.setAttribute('class', 'mnode' + (n < 4 ? ' leaf' : '') +
+        (pathNodes.includes(n) ? ' path' : '') + (proofNodes.includes(n) ? ' proof' : ''));
+      const w = n === 6 ? 170 : 140;
+      const r = document.createElementNS(NS, 'rect');
+      r.setAttribute('x', x - w/2); r.setAttribute('y', y - 22);
+      r.setAttribute('width', w); r.setAttribute('height', 44); r.setAttribute('rx', 6);
+      g.appendChild(r);
+      const t1 = document.createElementNS(NS, 'text');
+      t1.setAttribute('x', x); t1.setAttribute('y', y - 5);
+      t1.setAttribute('text-anchor', 'middle'); t1.setAttribute('class', 'lab');
+      t1.textContent = mLabels[n];
+      const t2 = document.createElementNS(NS, 'text');
+      t2.setAttribute('x', x); t2.setAttribute('y', y + 13);
+      t2.setAttribute('text-anchor', 'middle'); t2.setAttribute('class', 'hsh');
+      t2.textContent = short(hashes[n], 12);
+      g.appendChild(t1); g.appendChild(t2);
+      if (n < 4) g.addEventListener('click', () => { mSelected = (mSelected === n ? -1 : n); merkleRender(); });
+      mSvg.appendChild(g);
+    });
+    $('#merkleHint').textContent = mSelected < 0
+      ? 'A block with 4,000 transactions needs a proof of only ~12 hashes — proofs grow as log₂(n), not n.'
+      : `Merkle proof for TX ${mSelected + 1}: just the ${2} dashed hashes. Hash upward — if you land on the root, the transaction is provably in the block.`;
+  }
+  $$('.mtx').forEach(inp => inp.addEventListener('input', merkleRender));
+  merkleRender();
+
+  /* ---------- chain race ---------- */
+  const raceQ = $('#raceQ'), raceQv = $('#raceQv'), raceStatus = $('#raceStatus');
+  let raceTimer = null;
+  raceQ.addEventListener('input', () => raceQv.textContent = raceQ.value);
+  const NSs = 'http://www.w3.org/2000/svg';
+  function raceBlock(g, n, color){
+    const r = document.createElementNS(NSs, 'rect');
+    r.setAttribute('x', 78 + n * 23); r.setAttribute('y', g.id === 'raceHonest' ? 25 : 100);
+    r.setAttribute('width', 19); r.setAttribute('height', 26); r.setAttribute('rx', 3);
+    r.setAttribute('fill', color); g.appendChild(r);
+  }
+  function raceStop(){ if (raceTimer){ clearInterval(raceTimer); raceTimer = null; } }
+  function raceReset(){
+    raceStop();
+    $('#raceHonest').innerHTML = ''; $('#raceAttack').innerHTML = '';
+    raceStatus.innerHTML = 'Press ▶ Race to run the experiment. Run it several times — variance is real, gravity wins.';
+  }
+  $('#raceReset').addEventListener('click', raceReset);
+  $('#raceStart').addEventListener('click', () => {
+    raceReset();
+    const q = +raceQ.value / 100;
+    let h = 0, a = 0;
+    const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    function tick(){
+      if (Math.random() < q) raceBlock($('#raceAttack'), a++, '#BF3B2B');
+      else raceBlock($('#raceHonest'), h++, '#0E6E6B');
+      const lead = h - a;
+      raceStatus.innerHTML = `honest: ${h} blocks · attacker: ${a} blocks · lead: <b>${lead > 0 ? '+' + lead : lead}</b>`;
+      if (h + a >= 26){
+        raceStop();
+        const p = 1 - q;
+        const verdict = lead > 0
+          ? `Attacker is ${lead} behind. Odds of EVER catching up: (q/p)<sup>${lead}</sup> ≈ <b>${(Math.pow(q/p, lead) * 100).toPrecision(2)}%</b> — and each honest block cuts it further.`
+          : `Attacker got ahead this time — with q=${raceQ.value}% that's luck, not strategy. Run it again.`;
+        raceStatus.innerHTML += '<br>' + verdict;
+      }
+    }
+    if (reduced){ while (raceTimer !== false && h + a < 26) tick(); } // instant, no animation
+    else raceTimer = setInterval(tick, 260);
+  });
+
+  /* ---------- attacker calculator ---------- */
+  const cQ = $('#calcQ'), cZ = $('#calcZ');
+  function fmtP(P){
+    if (P >= 1) return '100%';
+    if (P < 1e-8) return '< 0.000001%';
+    const pct = P * 100;
+    return pct >= 0.01 ? pct.toPrecision(3) + '%' : pct.toExponential(2) + '%';
+  }
+  function calcRender(){
+    const q = +cQ.value / 100, z = +cZ.value;
+    $('#calcQv').textContent = cQ.value;
+    $('#calcZv').textContent = z;
+    $('#calcOut').textContent = fmtP(attackerSuccess(q, z));
+    const svg = $('#calcChart');
+    svg.innerHTML = '';
+    const zs = 16, bw = 32, gap = 8, x0 = 40, baseY = 160, maxH = 130;
+    for (let zi = 0; zi < zs; zi++){
+      const P = attackerSuccess(q, zi);
+      // log scale: map P from [1e-8, 1] → [0, maxH]
+      const hgt = Math.max(2, maxH * (Math.log10(Math.max(P, 1e-8)) + 8) / 8);
+      const x = x0 + zi * (bw + gap);
+      const r = document.createElementNS(NSs, 'rect');
+      r.setAttribute('x', x); r.setAttribute('y', baseY - hgt);
+      r.setAttribute('width', bw); r.setAttribute('height', hgt); r.setAttribute('rx', 3);
+      r.setAttribute('fill', zi === z ? '#F7931A' : '#C9D2CC');
+      const tip = document.createElementNS(NSs, 'title');
+      tip.textContent = `z=${zi}: ${fmtP(P)}`;
+      r.appendChild(tip);
+      svg.appendChild(r);
+      const t = document.createElementNS(NSs, 'text');
+      t.setAttribute('x', x + bw/2); t.setAttribute('y', 176);
+      t.setAttribute('text-anchor', 'middle'); t.setAttribute('font-size', '10');
+      t.setAttribute('font-family', 'ui-monospace,Consolas,monospace');
+      t.setAttribute('fill', zi === z ? '#B26400' : '#5C6B72');
+      if (zi === z) t.setAttribute('font-weight', '700');
+      t.textContent = zi;
+      svg.appendChild(t);
+    }
+    const axis = document.createElementNS(NSs, 'text');
+    axis.setAttribute('x', 8); axis.setAttribute('y', 176);
+    axis.setAttribute('font-size', '10'); axis.setAttribute('fill', '#5C6B72');
+    axis.setAttribute('font-family', 'ui-monospace,Consolas,monospace');
+    axis.textContent = 'z =';
+    svg.appendChild(axis);
+  }
+  cQ.addEventListener('input', calcRender);
+  cZ.addEventListener('input', calcRender);
+  calcRender();
+}
+
+if (typeof document !== 'undefined') initUI();
+/* Exports for the node self-test; inert in the browser. */
+if (typeof module !== 'undefined' && module.exports) module.exports = { sha256, merkleLevels, attackerSuccess };
+</script>
+</body>
+</html>
